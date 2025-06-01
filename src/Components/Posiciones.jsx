@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
+import Navbar from './Navbar';
+import Footer from './Footer';
 
 function Posiciones() {
     const [teams, setTeams] = useState([]);
@@ -24,6 +26,7 @@ function Posiciones() {
     
       return (
         <div style={{ padding: '2rem' }}>
+          <Navbar/>
           <h2 style={{ marginBottom: '1rem' }}>🏆 RANKING</h2>
     
           <div style={{ overflowX: 'auto' }}>
@@ -52,6 +55,7 @@ function Posiciones() {
               </tbody>
             </table>
           </div>
+          <Footer/>
         </div>
       );
     }

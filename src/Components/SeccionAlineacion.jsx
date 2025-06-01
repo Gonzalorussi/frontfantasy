@@ -2,7 +2,7 @@
 import React from 'react';
 
 export default function SeccionAlineacion({ roster }) {
-  const roles = ['TOP', 'JUNGLA', 'MID', 'ADC', 'SUPPORT'];
+  const roles = ['TOP', 'JUNGLE', 'MID', 'BOTTON', 'SUPPORT'];
 
   return (
     <section style={{ marginBottom: '2rem' }}>
@@ -11,9 +11,10 @@ export default function SeccionAlineacion({ roster }) {
         {roster ? (
           roles.map((rol) => {
             const jugador = roster[rol.toLowerCase()];
+            console.log(jugador)
             return (
               <div key={rol} style={{ marginBottom: '0.5rem' }}>
-                <strong>{rol}:</strong> {jugador?.nombre || 'No asignado'}
+                <strong>{rol}:</strong> {jugador || 'No asignado'}
               </div>
             );
           })

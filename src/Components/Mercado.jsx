@@ -3,6 +3,8 @@ import { onAuthStateChanged, getAuth } from 'firebase/auth';
 import axios from 'axios';
 import { doc, setDoc, serverTimestamp, getFirestore } from 'firebase/firestore';
 import silueta from '../assets/img/silueta.webp';
+import Navbar from './Navbar';
+import Footer from './Footer';
 
 const roles = ['TOP', 'JUNGLE', 'MID', 'BOTTOM', 'SUPPORT'];
 function Mercado() {
@@ -107,7 +109,9 @@ function Mercado() {
   };
 
   return (
+    
     <div style={{ padding: '2rem' }}>
+      <Navbar/>
       <h2>Mercado de Jugadores (LCK)</h2>
 
       <div style={{ marginBottom: '1rem', fontWeight: 'bold' }}>Presupuesto restante: {presupuesto} 💰</div>
@@ -210,9 +214,10 @@ function Mercado() {
             </div>
           );
         })}
+        
       </div>
-
       <div style={{ marginTop: '2rem', fontWeight: 'bold' }}>Presupuesto restante: {presupuesto} 💰</div>
+      <Footer/>
     </div>
   );
 }

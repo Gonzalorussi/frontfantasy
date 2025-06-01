@@ -1,7 +1,9 @@
-
+import Navbar from './Navbar';
+import Footer from './Footer';
 function Reglas() {
     return (
         <div style={{ padding: '2rem' }}>
+          <Navbar/>
           <h2>MSI Fantasy - Reglas</h2>
     
           <section>
@@ -95,6 +97,7 @@ function Reglas() {
               Por cada <strong>100 puntos acumulados</strong> por tu equipo, recibirás un incremento de <strong>+2 monedas</strong> en tu presupuesto para futuras fases.
             </p>
           </section>
+          <Footer/>
         </div>
     );
 };

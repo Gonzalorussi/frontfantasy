@@ -3,7 +3,10 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import Login from './pages/Login';
-
+import MiEquipo from '../src/Components/MiEquipo';
+import Mercado from '../src/Components/Mercado';
+import Posiciones from '../src/Components/Posiciones';
+import Reglas from '../src/Components/Reglas';
 
 function App() {
   return (
@@ -11,7 +14,10 @@ function App() {
       <Routes>
         <Route path="/*" element={<Home />} />
         <Route path="/login" element={<Login />} />
-        
+        <Route path="/mi-equipo" element={<MiEquipo />} />
+        <Route path="/mercado" element={<Mercado />} />
+        <Route path="/posiciones" element={<Posiciones />} />
+        <Route path="/reglas" element={<Reglas />} />
       </Routes>
     </BrowserRouter>
   );

@@ -26,6 +26,8 @@ import Relleno11  from '../assets/rellenos/relleno11.svg?react';
 import Relleno12  from '../assets/rellenos/relleno12.svg?react';
 import VistaPreviaEscudo from '../Components/VistaPreviaEscudo';
 import { Routes, Route, useNavigate, Link } from 'react-router-dom';
+import Navbar from './Navbar';
+import Footer from './Footer';
 
 
 function MiEquipo({ user, onTeamCreated }) {
@@ -104,6 +106,7 @@ function MiEquipo({ user, onTeamCreated }) {
 
   return (
     <div className="text-center mt-6">
+      <Navbar/>
       <h2 className="text-xl mb-4">Crear tu equipo</h2>
 
       <input
@@ -185,7 +188,7 @@ function MiEquipo({ user, onTeamCreated }) {
     </button>
   </div>
 )}
-
+<Footer/>
     </div>
   );
 }

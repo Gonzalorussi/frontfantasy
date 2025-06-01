@@ -4,10 +4,6 @@ import { auth, db } from '../firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import Navbar from '../Components/Navbar';
 import Footer from '../Components/Footer';
-import MiEquipo from '../Components/MiEquipo';
-import Mercado from '../Components/Mercado';
-import Posiciones from '../Components/Posiciones';
-import Reglas from '../Components/Reglas';
 import SeccionEquipo from '../Components/SeccionEquipo';
 import SeccionAlineacion from '../Components/SeccionAlineacion';
 import SeccionNoticias from '../Components/SeccionNoticias';
@@ -60,7 +56,7 @@ export default function Home() {
       <main style={{ padding: '2rem' }}>
         <h1>Bienvenido, {user?.displayName}</h1>
 
-        {!loading? (
+        {loading? (
           <p>Cargando</p>
         ) : !team ? (
           <div style={{ marginTop: '2rem' }}>

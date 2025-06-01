@@ -5,6 +5,7 @@ export default function SeccionEquipo({ team }) {
   if (!team) return null;
   
   const { escudoid, rellenoid, colorprimario, colorsecundario, nombreequipo } = team;
+  console.log(team)
 
   return (
     <section className="mb-8">
