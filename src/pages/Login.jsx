@@ -6,7 +6,7 @@ import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import img from '../assets/img/login_es.avif';
 import Footer from '../Components/Footer';
-
+import logo from '../assets/MSILOGO.png'
 export default function Login() {
   const navigate = useNavigate();
 
@@ -41,19 +41,14 @@ export default function Login() {
 
   return (
     <>
-      <div
-        style={{
-          textAlign: 'center',
-          marginTop: '100px',
-          background: 'linear-gradient(to bottom, #e0e0e0, #c0c0c0)',
-        }}
-      >
-        <p>TU</p>
-        <h1>MSI 2025</h1>
-        <p>COMIENZA AHORA</p>
+      <div className='flex flex-col items-center bg-gray-900'>
+        <img className='mt-4 w-20 h-24' src={logo} alt="Logo MSI" />
+        <p className='mt-4 text-gray-200 font-semibold text-xl'>TU</p>
+        <h1 className='text-gray-200 font-semibold text-xl'>MSI 2025</h1>
+        <p className='text-gray-200 font-semibold text-xl'>COMIENZA AHORA</p>
         <button
           onClick={handleGoogleLogin}
-          style={{ padding: '10px 20px', fontSize: '16px' }}
+          className='my-4 cursor-pointer bg-red-800 hover:bg-red-900 p-2 rounded-lg font-semibold text-sm text-gray-200'
         >
           Iniciar sesión con Google
         </button>

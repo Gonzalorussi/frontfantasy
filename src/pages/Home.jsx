@@ -53,13 +53,13 @@ export default function Home() {
   return (
     <div>
       <Navbar user={user} />
-      <main style={{ padding: '2rem' }}>
-        <h1>Bienvenido, {user?.displayName}</h1>
+      <main className='h-[70vh] flex flex-col bg-gray-200'>
+        <h1 className='text-center mt-4 font-semibold text-xl text-gray-900'>Bienvenido, {user?.displayName}</h1>
 
         {loading? (
           <p>Cargando</p>
         ) : !team ? (
-          <div style={{ marginTop: '2rem' }}>
+          <div>
             <p>¡Todavía no creaste tu equipo!</p>
             <Link to="/mi-equipo">
               <button>Crear mi equipo</button>
@@ -67,8 +67,10 @@ export default function Home() {
           </div>
         ) : (
           <>
+          <div className='flex justify-between mt-20 mx-10'>
             <SeccionEquipo team={team} />
             <SeccionAlineacion roster={roster} />
+          </div>
           </>
         )}
         

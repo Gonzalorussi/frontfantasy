@@ -5,15 +5,15 @@ export default function SeccionAlineacion({ roster }) {
   const roles = ['TOP', 'JUNGLE', 'MID', 'BOTTON', 'SUPPORT'];
 
   return (
-    <section style={{ marginBottom: '2rem' }}>
-      <h2>Mi Alineación</h2>
+    <section className="bg-red-900 p-20 rounded-xl fflex flex-col m-4">
+      <h2 className="text-gray-200 text-xl font-semibold mb-2">Mi alineación:</h2>
       <div>
         {roster ? (
           roles.map((rol) => {
             const jugador = roster[rol.toLowerCase()];
             console.log(jugador)
             return (
-              <div key={rol} style={{ marginBottom: '0.5rem' }}>
+              <div key={rol} className='text-gray-200 mt-2'>
                 <strong>{rol}:</strong> {jugador || 'No asignado'}
               </div>
             );

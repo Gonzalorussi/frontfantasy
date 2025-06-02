@@ -12,28 +12,22 @@ export default function Navbar({ user }) {
   };
 
   return (
-    <nav style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', background: '#333', color: '#fff' }}>
-      <div>
-        <Link to="/" style={linkStyle}>Inicio</Link>
-        <Link to="/mi-equipo" style={linkStyle}>Mi equipo</Link>
-        <Link to="/mercado" style={linkStyle}>Mercado</Link>
-        <Link to="/posiciones" style={linkStyle}>Posiciones</Link>
-        <Link to="/reglas" style={linkStyle}>Reglas</Link>
-      </div>
-      <div>
+    <nav className='flex items-center justify-between p-10 bg-gray-900 text-gray-200 font-semibold'>
+      <ul className='flex gap-x-10 items-center'>
+        <li className='hover:text-amber-400'><Link to="/">Inicio</Link></li>
+        <li className='hover:text-amber-400'><Link to="/mi-equipo">Mi equipo</Link></li>
+        <li className='hover:text-amber-400'><Link to="/mercado">Mercado</Link></li>
+        <li className='hover:text-amber-400'><Link to="/posiciones">Posiciones</Link></li>
+        <li className='hover:text-amber-400'><Link to="/reglas">Reglas</Link></li>
+      </ul>
+      <div className='flex gap-x-4'>
         {user && (
           <>
-            <span style={{ marginRight: '1rem' }}>{user.displayName}</span>
-            <button onClick={handleLogout} style={{ padding: '0.5rem 1rem' }}>Salir</button>
+            <span>{user.displayName}</span>
+            <button onClick={handleLogout} className='cursor-pointer hover:text-red-800'>Salir</button>
           </>
         )}
       </div>
     </nav>
   );
 }
-
-const linkStyle = {
-  marginRight: '1rem',
-  textDecoration: 'none',
-  color: '#fff'
-};
