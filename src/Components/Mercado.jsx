@@ -29,7 +29,7 @@ function Mercado() {
   }, []);
 
   useEffect(() => {
-    async function obtenerJugadoresLCK() {
+    async function obtenerJugadoresMSI() {
       try {
         const response = await axios.get('https://esports-api.lolesports.com/persisted/gw/getTeams?leagueId=MSI', {
           params: {
@@ -40,11 +40,12 @@ function Mercado() {
         });
 
         const teamsData = response.data.data.teams || [];
-        const jugadoresLCK = [];
+        console.log(response.data.data.teams)
+        const jugadoresMSI = [];
 
         teamsData.forEach(team => {
           team.players.forEach(player => {
-            jugadoresLCK.push({
+            jugadoresMSI.push({
               id: player.id,
               nombre: player.summonerName,
               rol: player.role.toUpperCase(),
@@ -55,13 +56,49 @@ function Mercado() {
           });
         });
 
-        setJugadores(jugadoresLCK);
+      const equiposPermitidos = [
+        't1',
+        'gen g esports',
+        'hanwha life esports',
+        'dplus kia',
+        'nongshim red force',
+        'kt rolster',
+        'g2 esports',
+        'fnatic',
+        'bilibili gaminng dreamsmart',
+        'topesports',
+        'funplus-phoenix',
+        'isurus estral',
+        'talon',
+        'movistar koi',
+        'furia',
+        'invictus gaming',
+        'beijing jdg intel esports',
+        'weibogaming faw audi',
+        'anyones-legend',
+        'pain gaming',
+        'vivo keyd stars',
+        'cloud9 kia',
+        'gam esports',
+        'team liquid',
+        'flyquest',
+        'karmine corp',
+        'team secret whales',
+        'shopyfy rebelion',
+        'ctbc flying oyster',
+        'anyone\'s legend',
+        'xi\'an team we'
+      ];
+
+      const jugadoresFiltrados = jugadoresMSI.filter(jugador =>equiposPermitidos.includes(jugador.equipo.toLowerCase()));
+
+      setJugadores(jugadoresFiltrados);
       } catch (error) {
-        console.error('Error al obtener jugadores de la LCK:', error);
+        console.error('Error al obtener jugadores del MSI:', error);
       }
     }
 
-    obtenerJugadoresLCK();
+    obtenerJugadoresMSI();
   }, []);
 
   const seleccionarJugador = (jugador) => {
@@ -85,11 +122,11 @@ function Mercado() {
     const db = getFirestore();
     try {
       await setDoc(doc(db, 'rosters', usuarioId), {
-  top: alineacion['TOP']?.id || null,
-  mid: alineacion['MID']?.id || null,
-  jungle: alineacion['JUNGLE']?.id || null,
-  botton: alineacion['BOTTOM']?.id || null,
-  support: alineacion['SUPPORT']?.id || null,
+  top: alineacion['TOP'] || null,
+  mid: alineacion['MID'] || null,
+  jungle: alineacion['JUNGLE'] || null,
+  botton: alineacion['BOTTOM'] || null,
+  support: alineacion['SUPPORT'] || null,
   createdat: serverTimestamp(),
   lastupdate: serverTimestamp(),
   userid: usuarioId,
@@ -112,7 +149,7 @@ function Mercado() {
     
     <div style={{ padding: '2rem' }}>
       <Navbar/>
-      <h2>Mercado de Jugadores (LCK)</h2>
+      <h2>Mercado de Jugadores (MSI)</h2>
 
       <div style={{ marginBottom: '1rem', fontWeight: 'bold' }}>Presupuesto restante: {presupuesto} 💰</div>
 

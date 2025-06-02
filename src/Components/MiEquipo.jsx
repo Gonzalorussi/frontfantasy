@@ -129,7 +129,7 @@ function MiEquipo({ user, onTeamCreated }) {
           </button>
         ))}
       </div>
-
+      <h3>Elegí un ícono:</h3>
       <div className="flex flex-wrap justify-center gap-4 mb-4">
         {rellenos.map(({id, Componente}) => (
           <button

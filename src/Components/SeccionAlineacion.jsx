@@ -13,8 +13,16 @@ export default function SeccionAlineacion({ roster }) {
             const jugador = roster[rol.toLowerCase()];
             console.log(jugador)
             return (
-              <div key={rol} className='text-gray-200 mt-2'>
-                <strong>{rol}:</strong> {jugador || 'No asignado'}
+              <div key={rol} style={{ marginBottom: '0.5rem' }}>
+                <strong>{rol}:</strong> {''}
+                {jugador ? (
+                  <>
+                  <img src={jugador.foto} alt={jugador.nombre} width={30} style={{ verticalAlign: 'middle', marginRight: 8 }} />
+                  {jugador.nombre} ({jugador.equipo})
+                  </>
+                ) : (
+                  'No asignado'
+                )}
               </div>
             );
           })
