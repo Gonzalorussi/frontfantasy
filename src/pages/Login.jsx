@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import img from '../assets/img/login_es.avif';
 import Footer from '../Components/Footer';
 import logo from '../assets/MSILOGO.png'
+import {FaGoogle} from 'react-icons/fa';
 export default function Login() {
   const navigate = useNavigate();
 
@@ -50,7 +51,7 @@ export default function Login() {
           onClick={handleGoogleLogin}
           className='my-4 cursor-pointer bg-red-800 hover:bg-red-900 p-2 rounded-lg font-semibold text-sm text-gray-200'
         >
-          Iniciar sesión con Google
+          Iniciar sesión con Google<FaGoogle className="w-6 h-6 hover:text-red-900 transition" />
         </button>
         <img src={img} alt="login" />
       </div>
