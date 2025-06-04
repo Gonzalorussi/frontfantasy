@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { onAuthStateChanged, getAuth } from 'firebase/auth';
-import axios from 'axios';
-import { doc, setDoc, serverTimestamp, getFirestore } from 'firebase/firestore';
+import { doc, setDoc, serverTimestamp, getFirestore, getDocs, collection } from 'firebase/firestore';
 import silueta from '../assets/img/silueta.webp';
 import Navbar from './Navbar';
 import Footer from './Footer';
@@ -31,68 +30,56 @@ function Mercado() {
   useEffect(() => {
     async function obtenerJugadoresMSI() {
       try {
-        const response = await axios.get('https://esports-api.lolesports.com/persisted/gw/getTeams?leagueId=MSI', {
-          params: {
-            leagueId: 'MSI',
-            hl: 'en-US'
-          },
-          headers: { 'x-api-key': '0TvQnueqKa5mxJntVWt0w4LpLfEkrV1Ta8rQBb9Z' },
-        });
-
-        const teamsData = response.data.data.teams || [];
-        console.log(response.data.data.teams)
-        const jugadoresMSI = [];
-
-        teamsData.forEach(team => {
-          team.players.forEach(player => {
-            jugadoresMSI.push({
-              id: player.id,
-              nombre: player.summonerName,
-              rol: player.role.toUpperCase(),
-              equipo: team.name,
-              foto: player.image,
-              valor: Math.floor(Math.random() * 1000) + 1000
-            });
-          });
-        });
+       const db = getFirestore();
+      const jugadoresSnapshot = await getDocs(collection(db, 'jugadores'));
 
       const equiposPermitidos = [
         't1',
-        'gen g esports',
-        'hanwha life esports',
-        'dplus kia',
-        'nongshim red force',
-        'kt rolster',
-        'g2 esports',
-        'fnatic',
-        'bilibili gaminng dreamsmart',
-        'topesports',
-        'funplus-phoenix',
-        'isurus estral',
-        'talon',
-        'movistar koi',
+        'geng',
+        'hle',
+        'dk',
+        'ns',
+        'kt',
+        'g2',
+        'fnc',
+        'blg',
+        'tes',
+        'ie',
+        'psg',
+        'koi',
         'furia',
-        'invictus gaming',
-        'beijing jdg intel esports',
-        'weibogaming faw audi',
-        'anyones-legend',
-        'pain gaming',
-        'vivo keyd stars',
-        'cloud9 kia',
-        'gam esports',
-        'team liquid',
-        'flyquest',
-        'karmine corp',
-        'team secret whales',
-        'shopyfy rebelion',
-        'ctbc flying oyster',
-        'anyone\'s legend',
-        'xi\'an team we'
+        'ig',
+        'jdg',
+        'wbg',
+        'al',
+        'png',
+        'vks',
+        'c9',
+        'gam',
+        'tl',
+        'fly',
+        'kc',
+        'tsw',
+        'sr',
+        'ctbc',
+        'we'
       ];
+      const jugadoresData = jugadoresSnapshot.docs
+        .map(doc => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            nombre: data.nombre || data.Nombre || '', 
+            club: (data.clubid || data.Clubid || '').toLowerCase(),
+            rol: data.rol || data.Rol || '',
+            valor: data.costo || data.Costo || 0,
+            foto: data.foto || data.Foto || silueta,
+          };
+        })
+        .filter(jugador => equiposPermitidos.includes(jugador.club));
 
-      const jugadoresFiltrados = jugadoresMSI.filter(jugador =>equiposPermitidos.includes(jugador.equipo.toLowerCase()));
-
-      setJugadores(jugadoresFiltrados);
+      setJugadores(jugadoresData);
+      console.log(jugadoresData);
       } catch (error) {
         console.error('Error al obtener jugadores del MSI:', error);
       }
