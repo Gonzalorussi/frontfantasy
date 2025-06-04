@@ -4,8 +4,23 @@ import { doc, setDoc, serverTimestamp, getFirestore, getDocs, collection } from 
 import silueta from '../assets/img/silueta.webp';
 import Navbar from './Navbar';
 import Footer from './Footer';
+import top from '../assets/iconos/top.svg?react'
+import jungle from '../assets/iconos/jungle.svg?react'
+import mid from '../assets/iconos/mid.svg?react'
+import bottom from '../assets/iconos/bottom.svg?react'
+import support from '../assets/iconos/support.svg?react'
+import { FaPlus, FaTrash, FaExchangeAlt } from 'react-icons/fa';
 
-const roles = ['TOP', 'JUNGLE', 'MID', 'BOTTOM', 'SUPPORT'];
+const iconosRol = {
+  top: top,
+  jungle: jungle,
+  mid: mid,
+  bottom: bottom,
+  support: support,
+};
+
+const roles = ['top', 'jungle', 'mid', 'bottom', 'support'];
+
 function Mercado() {
   const [busqueda, setBusqueda] = useState('');
   const [rolActivo, setRolActivo] = useState(null);
@@ -89,18 +104,28 @@ function Mercado() {
   }, []);
 
   const seleccionarJugador = (jugador) => {
-    if (alineacion[jugador.rol] || jugador.valor > presupuesto) return;
-    setAlineacion({ ...alineacion, [jugador.rol]: jugador });
-    setPresupuesto(presupuesto - jugador.valor);
-  };
+    const jugadorActual = alineacion[jugador.rol];
 
-  const deseleccionarJugador = (rol) => {
-    const jugador = alineacion[rol];
-    if (!jugador) return;
-    const nuevoRoster = { ...alineacion };
-    delete nuevoRoster[rol];
-    setAlineacion(nuevoRoster);
-    setPresupuesto(presupuesto + jugador.valor);
+    if (jugadorActual && jugadorActual.id === jugador.id) {
+      const nuevoRoster = { ...alineacion };
+      delete nuevoRoster[jugador.rol];
+      setAlineacion(nuevoRoster);
+      setPresupuesto(presupuesto + jugador.valor);
+      return;
+    }
+
+    if (jugadorActual) {
+     const nuevoPresupuesto = presupuesto + jugadorActual.valor - jugador.valor;
+     if (nuevoPresupuesto < 0) return;
+     setAlineacion({ ...alineacion, [jugador.rol]: jugador });
+      setPresupuesto(nuevoPresupuesto);
+      return;
+    }
+
+    if (jugador.valor <= presupuesto) {
+      setAlineacion({ ...alineacion, [jugador.rol]: jugador });
+      setPresupuesto(presupuesto - jugador.valor);
+    }
   };
 
   const confirmarRoster = async () => {
@@ -109,14 +134,14 @@ function Mercado() {
     const db = getFirestore();
     try {
       await setDoc(doc(db, 'rosters', usuarioId), {
-  top: alineacion['TOP'] || null,
-  mid: alineacion['MID'] || null,
-  jungle: alineacion['JUNGLE'] || null,
-  botton: alineacion['BOTTOM'] || null,
-  support: alineacion['SUPPORT'] || null,
-  createdat: serverTimestamp(),
-  lastupdate: serverTimestamp(),
-  userid: usuarioId,
+        top: alineacion['top'] || null,
+        mid: alineacion['mid'] || null,
+        jungle: alineacion['jungle'] || null,
+        bottom: alineacion['bottom'] || null,
+        support: alineacion['support'] || null,
+        createdat: serverTimestamp(),
+        lastupdate: serverTimestamp(),
+        userid: usuarioId,
       });
       alert('Roster confirmado');
     } catch (error) {
@@ -130,6 +155,8 @@ function Mercado() {
       const coincideBusqueda = jugador.nombre.toLowerCase().includes(busqueda.toLowerCase());
       return coincideRol && coincideBusqueda;
     });
+
+    
   };
 
   return (
@@ -148,39 +175,57 @@ function Mercado() {
         style={{ marginBottom: '1rem', padding: '0.5rem', width: '100%' }}
       />
 
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
-        {roles.map((rol) => (
+      <div style={{ display: 'flex', gap: '1rem', justifyContent: 'space-around', marginBottom: '1rem' }}>
+        {roles.map((rol) => {
+          const Icono = iconosRol[rol];
+          return(
           <button
             key={rol}
             onClick={() => setRolActivo(rolActivo === rol ? null : rol)}
             style={{
-              backgroundColor: rolActivo === rol ? '#007bff' : '#e0e0e0',
+              backgroundColor: rolActivo === rol ? '#007bff' : '#transparent',
               color: rolActivo === rol ? 'white' : 'black',
-              padding: '0.5rem 1rem',
-              borderRadius: '5px',
-              border: 'none',
+              padding: '0.5rem',
+              border: rolActivo === rol ? '2px solid #007bff' : '2px solid transparent',
+              borderRadius: '8px',
               cursor: 'pointer'
             }}
           >
-            {rol}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <Icono width={40} height={40} />
+            <small style={{ marginTop: '0.2rem', fontSize: '0.75rem' }}>{rol}</small>
+          </div>
           </button>
-        ))}
+          );
+        })}
       </div>
 
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
-        {roles.map((rol) => (
-          <div key={rol} style={{ textAlign: 'center' }}>
-            <div>{rol}</div>
-            {alineacion[rol] ? (
-              <div onClick={() => deseleccionarJugador(rol)} style={{ cursor: 'pointer' }}>
-                <img src={alineacion[rol].foto} alt={alineacion[rol].nombre} width={60} height={60} /><br />
-                <strong>{alineacion[rol].nombre}</strong>
-              </div>
-            ) : (
-              <img src={silueta} alt="Vacío" width={60} height={60} />
-            )}
-          </div>
-        ))}
+      <div style={{ display: 'flex', justifyContent: 'space-around', marginBottom: '2rem' }}>
+  {roles.map((rol) => {
+    const jugador = alineacion[rol];
+    return (
+      <div key={rol} style={{ textAlign: 'center' }}>
+        <img
+          src={jugador?.foto || silueta}
+          alt={jugador?.nombre || 'Sin seleccionar'}
+          style={{
+            width: '70px',
+            height: '70px',
+            objectFit: 'cover',
+            borderRadius: '50%',
+            border: '2px solid #ccc',
+            marginBottom: '0.5rem'
+          }}
+        />
+        <div style={{ fontSize: '0.85rem' }}>
+          {jugador ? jugador.nombre : 'Sin seleccionar'}
+        </div>
+        <div style={{ fontSize: '0.75rem', color: '#555' }}>
+          ({rol})
+        </div>
+      </div>
+      );
+      })}
       </div>
 
       <button
@@ -201,10 +246,35 @@ function Mercado() {
 
       <div>
         {filtrarJugadores().map((jugador, index) => {
-          const puedeSeleccionar = jugador.valor <= presupuesto && !alineacion[jugador.rol];
+          const jugadorEnRol = alineacion[jugador.rol];
+          const esSeleccionado = jugadorEnRol?.id === jugador.id;
+          const rolOcupado = Boolean(jugadorEnRol);
+          const puedeReemplazar = rolOcupado && !esSeleccionado && (presupuesto + jugadorEnRol.valor - jugador.valor >= 0);
+          const puedeSeleccionar = !rolOcupado && jugador.valor <= presupuesto;
+
+          let botonTexto = 'Seleccionar';
+          let botonColor = '#007bff';
+          let habilitado = puedeSeleccionar;
+          let botonIcono = <FaPlus style={{ marginRight: '5px' }} />;
+
+          if (esSeleccionado) {
+            botonTexto = 'Eliminar';
+            botonColor = '#dc3545';
+            habilitado = true;
+            botonIcono = <FaTrash style={{ marginRight: '5px' }} />;
+          } else if (puedeReemplazar) {
+            botonTexto = 'Reemplazar';
+            botonColor = '#fd7e14';
+            habilitado = true;
+             botonIcono = <FaExchangeAlt style={{ marginRight: '5px' }} />;
+          }
+
+          const sombreado =
+          !esSeleccionado && jugador.valor > presupuesto ? '#f0f0f0' : 'white';
+
           return (
             <div
-              key={`${jugador.id}-${jugador.nombre}-${jugador.equipo}-${index}`}
+              key={`${jugador.id}-${jugador.nombre}-${jugador.club}-${index}`}
               style={{
                 border: '1px solid #ccc',
                 padding: '1rem',
@@ -212,28 +282,32 @@ function Mercado() {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '1rem',
-                borderRadius: '8px'
+                borderRadius: '8px',
+                backgroundColor: sombreado
               }}
             >
               <img src={jugador.foto} alt={jugador.nombre} width={50} height={50} />
               <div style={{ flex: 1 }}>
                 <strong>{jugador.nombre}</strong> ({jugador.rol})<br />
-                <small>{jugador.equipo}</small>
+                <small>{jugador.club}</small>
               </div>
               <span style={{ fontWeight: 'bold' }}>{jugador.valor} 💰</span>
               <button
                 onClick={() => seleccionarJugador(jugador)}
-                disabled={!puedeSeleccionar}
+                disabled={!habilitado}
                 style={{
                   padding: '0.5rem 1rem',
-                  backgroundColor: puedeSeleccionar ? '#007bff' : '#aaa',
+                  backgroundColor: habilitado ? botonColor : '#aaa',
                   color: 'white',
                   border: 'none',
                   borderRadius: '5px',
-                  cursor: puedeSeleccionar ? 'pointer' : 'not-allowed'
+                  cursor: habilitado ? 'pointer' : 'not-allowed',
+                  display: 'flex',
+                  alignItems: 'center'
                 }}
               >
-                Seleccionar
+                {botonIcono}
+                {botonTexto}
               </button>
             </div>
           );
