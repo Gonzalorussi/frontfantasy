@@ -43,17 +43,16 @@ export default function Login() {
   return (
     <>
       <div className='flex flex-col items-center bg-gray-900'>
-        <img className='mt-4 w-20 h-24' src={logo} alt="Logo MSI" />
-        <p className='mt-4 text-gray-200 font-semibold text-xl'>TU</p>
-        <h1 className='text-gray-200 font-semibold text-xl'>MSI 2025</h1>
-        <p className='text-gray-200 font-semibold text-xl'>COMIENZA AHORA</p>
-        <button
-          onClick={handleGoogleLogin}
-          className='my-4 cursor-pointer bg-red-800 hover:bg-red-900 p-2 rounded-lg font-semibold text-sm text-gray-200'
-        >
-          Iniciar sesión con Google<FaGoogle className="w-6 h-6 hover:text-red-900 transition" />
+        <div className='flex flex-col items-center'>
+          <img className='mt-4 w-20 h-24' src={logo} alt="Logo MSI" />
+          <button
+            onClick={handleGoogleLogin}
+            className='flex items-center gap-x-2 my-4 cursor-pointer bg-red-800 hover:bg-red-900 transition p-2 rounded-lg font-semibold text-md text-gray-200'
+          >
+          Iniciar sesión con Google<FaGoogle className="w-6 h-6" />
         </button>
-        <img src={img} alt="login" />
+        </div>
+        <img className='h-[60vh] md:h-[70vh] lg:h-full object-cover' src={img} alt="login" />
       </div>
       <Footer />
     </>

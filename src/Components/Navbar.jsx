@@ -12,15 +12,15 @@ export default function Navbar({ user }) {
   };
 
   return (
-    <nav className='flex items-center justify-between p-10 bg-gray-900 text-gray-200 font-semibold'>
-      <ul className='flex gap-x-10 items-center'>
+    <nav className='gap-y-4 text-center juestify-center grid md:flex items-center md:justify-between p-10 bg-gray-900 text-gray-200 font-semibold'>
+      <ul className='grid justify-center gap-y-1 md:flex gap-x-10 items-center'>
         <li className='hover:text-amber-400'><Link to="/">Inicio</Link></li>
         <li className='hover:text-amber-400'><Link to="/mi-equipo">Mi equipo</Link></li>
         <li className='hover:text-amber-400'><Link to="/mercado">Mercado</Link></li>
         <li className='hover:text-amber-400'><Link to="/posiciones">Posiciones</Link></li>
         <li className='hover:text-amber-400'><Link to="/reglas">Reglas</Link></li>
       </ul>
-      <div className='flex gap-x-4'>
+      <div className='justify-center grid md:flex gap-x-4'>
         {user && (
           <>
             <span>{user.displayName}</span>

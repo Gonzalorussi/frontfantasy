@@ -13,18 +13,12 @@
 
   export default function Footer() {
     return (
-      <footer className="font-semibold flex flex-col items-center justify-center bg-black text-white p-4 text-sm mt-auto">
-        <p className="mb-2">Creado por LuminoSpark</p>
+      <footer className="font-semibold flex flex-col items-center justify-center bg-gray-900 text-white p-4 text-sm mt-auto">
+        <p className="mb-2">Creado por</p>
 
         <div className="flex gap-4 mb-4">
-          <a href="https://luminospark-dev.netlify.app/" target="_blank" rel="noopener noreferrer" title="LuminoSpark">
-            <img src={LogoLumino}/>
-          </a>
-          <a href="https://www.instagram.com/luminospark_dev" target="_blank" rel="noopener noreferrer" title="Instagram">
-            <FaInstagram className="w-6 h-6 hover:text-red-900 transition" />
-          </a>
-          <a href="mailto:luminospark.dev@gmail.com" target="_blank" rel="noopener noreferrer" title="Gmail">
-            <FaEnvelope className="w-6 h-6 hover:text-red-900 transition" />
+          <a href="https://linktr.ee/luminospark" target="_blank" rel="noopener noreferrer" title="LuminoSpark">
+            <img className='w-40' src={LogoLumino}/>
           </a>
         </div>
 

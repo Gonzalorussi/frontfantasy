@@ -53,8 +53,8 @@ export default function Home() {
   return (
     <div>
       <Navbar user={user} />
-      <main className='h-[70vh] flex flex-col bg-gray-200'>
-        <h1 className='text-center mt-4 font-semibold text-xl text-gray-900'>Bienvenido, {user?.displayName}</h1>
+      <main className='md:h-[70vh] flex flex-col bg-gray-200'>
+        <h1 className='text-center my-4 font-semibold text-xl text-gray-900'>Bienvenido, {user?.displayName}</h1>
 
         {loading? (
           <p>Cargando</p>
@@ -67,7 +67,7 @@ export default function Home() {
           </div>
         ) : (
           <>
-          <div className='flex justify-between mt-20 mx-10'>
+          <div className='flex flex-col gap-y-4 md:flex md:flex-row justify-between gap-x-4 mx-4'>
             <SeccionEquipo team={team} />
             <SeccionAlineacion roster={roster} />
           </div>
