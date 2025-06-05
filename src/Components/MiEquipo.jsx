@@ -205,34 +205,34 @@ function MiEquipo({ user, onTeamCreated }) {
             </div>
           </div>
         </div>
-        {selectedShield && selectedFill && (
-          <div className="mt-6">
-            <h3 className="text-gray-900 text-2xl font-semibold mb-4">
-              Vista previa del escudo:
-            </h3>
-            <VistaPreviaEscudo
-              escudoId={selectedShield}
-              rellenoId={selectedFill}
-              colorPrimario={primaryColor}
-              colorSecundario={secondaryColor}
+      {selectedShield && selectedFill && (
+        <div className="mt-6">
+          <h3 className="text-gray-900 text-2xl font-semibold mb-4">
+            Vista previa del escudo:
+          </h3>
+          <VistaPreviaEscudo
+            escudoId={selectedShield}
+            rellenoId={selectedFill}
+            colorPrimario={primaryColor}
+            colorSecundario={secondaryColor}
+          />
+          <div className="flex flex-col justify-center items-center">
+            <input
+              type="text"
+              placeholder="Nombre del equipo"
+              value={teamName}
+              onChange={(e) => setTeamName(e.target.value)}
+              className="text-xl font-semibold border-2 p-2 mb-4"
             />
-            <div className="flex flex-col justify-center items-center">
-              <input
-                type="text"
-                placeholder="Nombre del equipo"
-                value={teamName}
-                onChange={(e) => setTeamName(e.target.value)}
-                className="text-xl font-semibold border-2 p-2 mb-4"
-              />
-              <button
-                className="my-4 cursor-pointer bg-red-800 hover:bg-red-900 transition p-2 rounded-lg font-semibold text-md text-gray-200"
-                onClick={handleConfirmarEquipo}
-              >
-                Confirmar equipo
-              </button>
-            </div>
+            <button
+              className="my-4 cursor-pointer bg-red-800 hover:bg-red-900 transition p-2 rounded-lg font-semibold text-md text-gray-200"
+              onClick={handleConfirmarEquipo}
+            >
+              Confirmar equipo
+            </button>
           </div>
-        )}
+        </div>
+      )}
       </div>
       <Footer />
     </main>
