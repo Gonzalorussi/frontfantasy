@@ -65,28 +65,25 @@ function Mercado() {
           "ns",
           "kt",
           "g2",
-          "fnc",
+          "koi",
+          "kc",
           "blg",
           "tes",
-          "ie",
-          "psg",
-          "koi",
-          "furia",
           "ig",
-          "jdg",
           "wbg",
           "al",
+          "we",
+          "ie",
+          "furia",
           "png",
           "vks",
-          "c9",
-          "gam",
           "tl",
           "fly",
-          "kc",
-          "tsw",
+          "c9",
           "sr",
+          "psg",
+          "gam",
           "ctbc",
-          "we",
         ];
 
         const jugadoresData = jugadoresSnapshot.docs
@@ -237,7 +234,6 @@ function Mercado() {
                       : "2px solid transparent",
                   borderRadius: "8px",
                   cursor: "pointer",
-                  color: "white"
                 }}
               >
                 <div
