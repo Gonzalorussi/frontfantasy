@@ -196,130 +196,145 @@ function Mercado() {
         .toLowerCase()
         .includes(busqueda.toLowerCase());
       return coincideRol && coincideBusqueda;
-    })
+    });
   };
 
   return (
-    <div>
+    <div className="bg-gray-200">
       <Navbar />
-      <h2>Mercado de Jugadores (MSI)</h2>
-
-      <div style={{ marginBottom: "1rem", fontWeight: "bold" }}>
-        Presupuesto restante: {presupuesto} 💰
+      <div className="flex flex-col items-center">
+        <h2 className="text-2xl font-semibold text-center mt-4">
+          Mercado de Jugadores (MSI)
+        </h2>
+        <div className="rounded-sm w-100 bg-gray-900 p-4 text-gray-200 text-xl font-semibold text-center mt-4">
+          <p>Presupuesto restante: {presupuesto} 💰</p>
+        </div>
       </div>
 
+      <div className="bg-gray-900 mt-4 pt-4">
+        <div
+          style={{
+            display: "flex",
+            gap: "1rem",
+            justifyContent: "space-around",
+            marginBottom: "1rem",
+          }}
+        >
+          {roles.map((rol) => {
+            const Icono = iconosRol[rol];
+            return (
+              <button
+                key={rol}
+                onClick={() => setRolActivo(rolActivo === rol ? null : rol)}
+                style={{
+                  backgroundColor:
+                    rolActivo === rol ? "#333" : "transparent",
+                  color: rolActivo === rol ? "white" : "black",
+                  padding: "0.5rem",
+                  border:
+                    rolActivo === rol
+                      ? "2px solid #007bff"
+                      : "2px solid transparent",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  color: "white"
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                  }}
+                >
+                  <Icono width={40} height={40} />
+                  <small style={{ marginTop: "0.2rem", fontSize: "0.75rem" }}>
+                    {rol}
+                  </small>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-around",
+            marginBottom: "2rem",
+          }}
+        >
+          {roles.map((rol) => {
+            const jugador = alineacion[rol];
+            return (
+              <div key={rol} style={{ textAlign: "center" }}>
+                <img
+                  src={jugador?.foto || silueta}
+                  alt={jugador?.nombre || "Sin seleccionar"}
+                  style={{
+                    width: "70px",
+                    height: "70px",
+                    objectFit: "cover",
+                    borderRadius: "50%",
+                    border: "2px solid #ccc",
+                    marginBottom: "0.5rem",
+                  }}
+                />
+                <div style={{ fontSize: "0.85rem", color: "white" }}>
+                  {jugador ? jugador.nombre : "Sin seleccionar"}
+                </div>
+                <div style={{ fontSize: "0.75rem", color: "white" }}>
+                  ({rol})
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="flex justify-center">
+          <button
+            onClick={confirmarRoster}
+            disabled={
+              Object.keys(alineacion).length !== 5 ||
+              !usuarioId ||
+              rosterConfirmado
+            }
+            style={{
+              backgroundColor:
+                Object.keys(alineacion).length === 5 &&
+                usuarioId &&
+                !rosterConfirmado
+                  ? "#28a745"
+                  : "#ccc",
+              color: "#333",
+              padding: "0.75rem 1.5rem",
+              borderRadius: "8px",
+              border: "none",
+              cursor:
+                Object.keys(alineacion).length === 5 &&
+                usuarioId &&
+                !rosterConfirmado
+                  ? "pointer"
+                  : "not-allowed",
+              marginBottom: "2rem",
+            }}
+          >
+            Confirmar Roster
+          </button>
+        </div>
+      </div>
+
+      <div className="flex mx-4">
       <input
         type="text"
         placeholder="Buscar jugador..."
         value={busqueda}
         onChange={(e) => setBusqueda(e.target.value)}
-        style={{ marginBottom: "1rem", padding: "0.5rem", width: "100%" }}
+        className="w-screen my-4 ring-1 ring-gray-900 rounded-sm text-xl"
       />
-
-      <div
-        style={{
-          display: "flex",
-          gap: "1rem",
-          justifyContent: "space-around",
-          marginBottom: "1rem",
-        }}
-      >
-        {roles.map((rol) => {
-          const Icono = iconosRol[rol];
-          return (
-            <button
-              key={rol}
-              onClick={() => setRolActivo(rolActivo === rol ? null : rol)}
-              style={{
-                backgroundColor: rolActivo === rol ? "#007bff" : "transparent",
-                color: rolActivo === rol ? "white" : "black",
-                padding: "0.5rem",
-                border:
-                  rolActivo === rol
-                    ? "2px solid #007bff"
-                    : "2px solid transparent",
-                borderRadius: "8px",
-                cursor: "pointer",
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                }}
-              >
-                <Icono width={40} height={40} />
-                <small style={{ marginTop: "0.2rem", fontSize: "0.75rem" }}>
-                  {rol}
-                </small>
-              </div>
-            </button>
-          );
-        })}
       </div>
 
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-around",
-          marginBottom: "2rem",
-        }}
-      >
-        {roles.map((rol) => {
-          const jugador = alineacion[rol];
-          return (
-            <div key={rol} style={{ textAlign: "center" }}>
-              <img
-                src={jugador?.foto || silueta}
-                alt={jugador?.nombre || "Sin seleccionar"}
-                style={{
-                  width: "70px",
-                  height: "70px",
-                  objectFit: "cover",
-                  borderRadius: "50%",
-                  border: "2px solid #ccc",
-                  marginBottom: "0.5rem",
-                }}
-              />
-              <div style={{ fontSize: "0.85rem" }}>
-                {jugador ? jugador.nombre : "Sin seleccionar"}
-              </div>
-              <div style={{ fontSize: "0.75rem", color: "#555" }}>({rol})</div>
-            </div>
-          );
-        })}
-      </div>
-
-      <button
-        onClick={confirmarRoster}
-        disabled={
-          Object.keys(alineacion).length !== 5 || !usuarioId || rosterConfirmado
-        }
-        style={{
-          backgroundColor:
-            Object.keys(alineacion).length === 5 &&
-            usuarioId &&
-            !rosterConfirmado
-              ? "#28a745"
-              : "#ccc",
-          color: "white",
-          padding: "0.75rem 1.5rem",
-          borderRadius: "8px",
-          border: "none",
-          cursor:
-            Object.keys(alineacion).length === 5 &&
-            usuarioId &&
-            !rosterConfirmado
-              ? "pointer"
-              : "not-allowed",
-          marginBottom: "2rem",
-        }}
-      >
-        Confirmar Roster
-      </button>
-
-      <div>
+      <div className="mx-4">
         {filtrarJugadores().map((jugador, index) => {
           const jugadorEnRol = alineacion[jugador.rol];
           const esSeleccionado = jugadorEnRol?.id === jugador.id;
@@ -397,10 +412,6 @@ function Mercado() {
             </div>
           );
         })}
-      </div>
-
-      <div style={{ marginTop: "2rem", fontWeight: "bold" }}>
-        Presupuesto restante: {presupuesto} 💰
       </div>
       <Footer />
     </div>

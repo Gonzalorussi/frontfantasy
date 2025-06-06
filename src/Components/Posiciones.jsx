@@ -12,14 +12,31 @@ function Posiciones() {
     const fetchTeams = async () => {
       try {
         const teamsSnapshot = await getDocs(collection(db, 'equipos'));
-        const teamsList = teamsSnapshot.docs.map(doc => doc.data());
-        
-        // Obtener puntaje para cada equipo
-        const teamsWithScores = [];
-        for (const team of teamsList) {
-          const puntaje = await calcularPuntajeEquipo(team.id);  // Llamamos la función que calcula el puntaje
-          teamsWithScores.push({ ...team, puntaje });
+      const teamsList = teamsSnapshot.docs.map(doc => {
+        const teamData = doc.data();
+
+       // Acceder al campo 'nombreequipo' y 'usuarioid'
+        const teamName = teamData.nombreequipo || 'Nombre no disponible';  // Usamos un valor por defecto si no tiene nombre
+        const ownerName = teamData.usuarioid || '—';  // Asignamos un valor por defecto si no tiene propietario
+
+        // Verifica la estructura con un console.log
+        console.log(teamData); // Esto te permitirá ver todos los campos del equipo
+
+        return { ...teamData, id: doc.id, name: teamName, ownerName };
+      });
+      // Obtener puntaje para cada equipo
+      const teamsWithScores = [];
+      for (const team of teamsList) {
+        // Verificar si el equipo tiene un puntaje guardado en Firestore
+        let puntaje = 0;  // Valor por defecto en caso de no tener puntaje
+        try {
+          puntaje = await calcularPuntajeEquipo(team.id);  // Llamamos la función que calcula el puntaje
+        } catch (error) {
+          console.log(`No se pudo calcular el puntaje para el equipo ${team.id}`);
         }
+
+        teamsWithScores.push({ ...team, puntaje });
+      }
 
         // Ordenamos por puntos descendente
         teamsWithScores.sort((a, b) => b.puntaje - a.puntaje);
@@ -34,7 +51,7 @@ function Posiciones() {
   }, []);
 
   return (
-    <div style={{ padding: '2rem' }}>
+    <div>
       <Navbar />
       <h2 style={{ marginBottom: '1rem' }}>🏆 RANKING</h2>
     
