@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import { calcularPuntajeEquipo } from '../utils/puntajes';  // Importamos la función
+import VistaPreviaEscudo from './VistaPreviaEscudo';  // Asegúrate de importar el componente
 
 function Posiciones() {
   const [teams, setTeams] = useState([]);
@@ -12,31 +13,51 @@ function Posiciones() {
     const fetchTeams = async () => {
       try {
         const teamsSnapshot = await getDocs(collection(db, 'equipos'));
-      const teamsList = teamsSnapshot.docs.map(doc => {
-        const teamData = doc.data();
+        const teamsList = [];
 
-       // Acceder al campo 'nombreequipo' y 'usuarioid'
-        const teamName = teamData.nombreequipo || 'Nombre no disponible';  // Usamos un valor por defecto si no tiene nombre
-        const ownerName = teamData.usuarioid || '—';  // Asignamos un valor por defecto si no tiene propietario
+        // Iteramos sobre cada equipo
+        for (const teamDoc of teamsSnapshot.docs) {
+          const teamData = teamDoc.data();
 
-        // Verifica la estructura con un console.log
-        console.log(teamData); // Esto te permitirá ver todos los campos del equipo
+          // Obtener nombre del equipo desde la colección 'equipos'
+          const teamName = teamData.nombreequipo || 'Nombre no disponible';
 
-        return { ...teamData, id: doc.id, name: teamName, ownerName };
-      });
-      // Obtener puntaje para cada equipo
-      const teamsWithScores = [];
-      for (const team of teamsList) {
-        // Verificar si el equipo tiene un puntaje guardado en Firestore
-        let puntaje = 0;  // Valor por defecto en caso de no tener puntaje
-        try {
-          puntaje = await calcularPuntajeEquipo(team.id);  // Llamamos la función que calcula el puntaje
-        } catch (error) {
-          console.log(`No se pudo calcular el puntaje para el equipo ${team.id}`);
+          // Obtener 'usuarioid' para buscar el nombre del propietario en la colección 'usuarios'
+          const userId = teamData.usuarioid;
+          let ownerName = '—'; // Valor por defecto para el propietario
+
+          // Si existe 'usuarioid', buscar el nombre del propietario en la colección 'usuarios'
+          if (userId) {
+            const userRef = doc(db, 'usuarios', userId);
+            const userSnap = await getDoc(userRef);
+
+            if (userSnap.exists()) {
+              // Extraemos el nombre del propietario (usuario)
+              ownerName = userSnap.data().nombre || 'Nombre no disponible';
+            }
+          }
+
+          // Agregar el equipo con el nombre del equipo y del propietario al arreglo
+          teamsList.push({
+            ...teamData,
+            id: teamDoc.id, // ID del equipo
+            name: teamName,  // Nombre del equipo
+            ownerName,       // Nombre del propietario (usuario)
+          });
         }
 
-        teamsWithScores.push({ ...team, puntaje });
-      }
+        // Obtener puntaje para cada equipo
+        const teamsWithScores = [];
+        for (const team of teamsList) {
+          let puntaje = 0;  // Valor por defecto en caso de no tener puntaje
+          try {
+            puntaje = await calcularPuntajeEquipo(team.id);  // Llamamos la función que calcula el puntaje
+          } catch (error) {
+            console.log(`No se pudo calcular el puntaje para el equipo ${team.id}`);
+          }
+
+          teamsWithScores.push({ ...team, puntaje });
+        }
 
         // Ordenamos por puntos descendente
         teamsWithScores.sort((a, b) => b.puntaje - a.puntaje);
@@ -70,11 +91,19 @@ function Posiciones() {
             {teams.map((team, index) => (
               <tr key={index} style={{ textAlign: 'center' }}>
                 <td style={thTdStyle}>{index + 1}</td>
+
+                {/* Aquí renderizamos el componente VistaPreviaEscudo y le pasamos las props correspondientes */}
                 <td style={thTdStyle}>
-                  <img src={team.shield} alt="escudo" width={40} height={40} />
+                  <VistaPreviaEscudo
+                    escudoId={team.escudoid}
+                    rellenoId={team.rellenoid}
+                    colorPrimario={team.colorprimario}
+                    colorSecundario={team.colorsecundario}
+                  />
                 </td>
-                <td style={thTdStyle}>{team.name}</td>
-                <td style={thTdStyle}>{team.ownerName || '—'}</td>
+
+                <td style={thTdStyle}>{team.name}</td> {/* Nombre del equipo */}
+                <td style={thTdStyle}>{team.ownerName}</td> {/* Nombre del propietario */}
                 <td style={thTdStyle}>{team.puntaje}</td> {/* Mostrar puntaje */}
               </tr>
             ))}
