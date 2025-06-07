@@ -74,17 +74,16 @@ function Posiciones() {
   return (
     <div>
       <Navbar />
-      <h2 style={{ marginBottom: '1rem' }}>🏆 RANKING</h2>
-    
+      <h2 className='my-4 text-center font-semibold text-2xl'>🏆 RANKING</h2>
       <div style={{ overflowX: 'auto' }}>
         <table style={tableStyle}>
           <thead>
             <tr>
-              <th style={thTdStyle}>#</th>
-              <th style={thTdStyle}>Escudo</th>
-              <th style={thTdStyle}>Equipo</th>
-              <th style={thTdStyle}>Usuario</th>
-              <th style={thTdStyle}>Puntos</th>
+              <th style={thTdStyle} className='p-1 font-semibold text-sm md:text-xl'>#</th>
+              <th style={thTdStyle} className='p-1 font-semibold text-sm md:text-xl'>Escudo</th>
+              <th style={thTdStyle} className='p-1 font-semibold text-sm md:text-xl'>Equipo</th>
+              <th style={thTdStyle} className='p-1 font-semibold text-sm md:text-xl'>Usuario</th>
+              <th style={thTdStyle} className='p-1 font-semibold text-sm md:text-xl'>Puntos</th>
             </tr>
           </thead>
           <tbody>
@@ -93,18 +92,19 @@ function Posiciones() {
                 <td style={thTdStyle}>{index + 1}</td>
 
                 {/* Aquí renderizamos el componente VistaPreviaEscudo y le pasamos las props correspondientes */}
-                <td style={thTdStyle}>
+                <td style={thTdStyle} >
                   <VistaPreviaEscudo
                     escudoId={team.escudoid}
                     rellenoId={team.rellenoid}
                     colorPrimario={team.colorprimario}
                     colorSecundario={team.colorsecundario}
+                    className={'flex justify-center items-center'}
                   />
                 </td>
 
-                <td style={thTdStyle}>{team.name}</td> {/* Nombre del equipo */}
-                <td style={thTdStyle}>{team.ownerName}</td> {/* Nombre del propietario */}
-                <td style={thTdStyle}>{team.puntaje}</td> {/* Mostrar puntaje */}
+                <td style={thTdStyle} className='p-1'>{team.name}</td> {/* Nombre del equipo */}
+                <td style={thTdStyle} className='p-1'>{team.ownerName}</td> {/* Nombre del propietario */}
+                <td style={thTdStyle} className='p-1'>{team.puntaje}</td> {/* Mostrar puntaje */}
               </tr>
             ))}
           </tbody>
@@ -117,13 +117,11 @@ function Posiciones() {
 
 const tableStyle = {
   width: '100%',
-  minWidth: '600px',
   borderCollapse: 'collapse',
   boxShadow: '0 0 10px rgba(0,0,0,0.1)',
 };
 
 const thTdStyle = {
-  padding: '0.75rem',
   border: '1px solid #ddd',
   backgroundColor: '#fff',
 };

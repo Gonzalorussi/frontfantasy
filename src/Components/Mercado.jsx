@@ -243,9 +243,6 @@ function Mercado() {
                   }}
                 >
                   <Icono width={40} height={40} />
-                  <small style={{ marginTop: "0.2rem", fontSize: "0.75rem" }}>
-                    {rol}
-                  </small>
                 </div>
               </button>
             );
@@ -299,7 +296,7 @@ function Mercado() {
                 Object.keys(alineacion).length === 5 &&
                 usuarioId &&
                 !rosterConfirmado
-                  ? "#28a745"
+                  ? "#fff"
                   : "#ccc",
               color: "#333",
               padding: "0.75rem 1.5rem",

@@ -10,13 +10,13 @@ export default function VistaPreviaEscudo({ escudoId, rellenoId, colorPrimario, 
   const RellenoComponent = rellenos[rellenoId];
 
   return (
-    <div className="relative w-40 h-40 mx-auto">
+    <div className="relative w-40 h-40 mx-auto flex items-center justify-center">
       <RellenoComponent
-        className="w-40 h-40 absolute top-0 left-0 z-20"
+        className="w-20 h-20 md:w-40 md:h-40 absolute z-20"
         style={{ color: colorSecundario }}
       />
       <EscudoComponent
-        className="w-40 h-40 absolute top-0 left-0"
+        className="w-20 h-20 md:w-40 md:h-40 absolute"
         style={{ color: colorPrimario, stroke: colorSecundario }}
       />
     </div>

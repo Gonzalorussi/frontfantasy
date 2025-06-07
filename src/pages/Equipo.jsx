@@ -64,7 +64,7 @@ export default function Equipo() {
           </div>
         ) : (
           <>
-          <div className='flex flex-col gap-y-4 md:flex md:flex-row justify-between gap-x-4 mx-4'>
+          <div className='mt-4 md:my-auto flex flex-col gap-y-4 md:flex md:flex-row justify-between gap-x-4 mx-4'>
             <SeccionEquipo team={team} />
             <SeccionAlineacion roster={roster} />
           </div>
