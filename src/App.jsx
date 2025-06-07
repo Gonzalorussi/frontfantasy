@@ -7,6 +7,7 @@ import MiEquipo from '../src/Components/MiEquipo';
 import Mercado from '../src/Components/Mercado';
 import Posiciones from '../src/Components/Posiciones';
 import Reglas from '../src/Components/Reglas';
+import Equipo from './pages/Equipo';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
       <Routes>
         <Route path="/*" element={<Home />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/equipo" element={<Equipo />} />
         <Route path="/mi-equipo" element={<MiEquipo />} />
         <Route path="/mercado" element={<Mercado />} />
         <Route path="/posiciones" element={<Posiciones />} />
