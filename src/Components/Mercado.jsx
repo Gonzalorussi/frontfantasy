@@ -61,7 +61,6 @@ function Mercado() {
           "t1",
           "geng",
           "hle",
-          "dk",
           "ns",
           "kt",
           "g2",
