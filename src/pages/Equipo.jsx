@@ -53,24 +53,26 @@ export default function Equipo() {
     <div>
       <Navbar user={user} />
       <main className='md:h-[70vh] flex flex-col bg-gray-200'>
-        {loading? (
+        {loading ? (
           <p>Cargando</p>
         ) : !team ? (
           <div>
-            <p>¡Todavía no creaste tu equipo!</p>
+            <p className="text-xl font-semibold text-gray-800 mb-4">¡Todavía no creaste tu equipo!</p>
             <Link to="/mi-equipo">
-              <button>Crear mi equipo</button>
+              <button className="bg-red-800 text-white px-6 py-3 rounded-lg shadow-md text-lg font-semibold transition duration-300 ease-in-out transform hover:bg-blue-500 hover:scale-105">
+                Crear mi equipo
+              </button>
             </Link>
           </div>
         ) : (
           <>
-          <div className='mt-4 md:my-auto flex flex-col gap-y-4 md:flex md:flex-row justify-between gap-x-4 mx-4'>
-            <SeccionEquipo team={team} />
-            <SeccionAlineacion roster={roster} />
-          </div>
+            <div className="md:my-auto flex flex-col gap-y-4 md:flex md:flex-row justify-center gap-x-4 mx-auto">
+              <SeccionEquipo team={team} />
+              <SeccionAlineacion roster={roster} />
+            </div>
           </>
         )}
-        
+
       </main>
       <Footer />
     </div>
