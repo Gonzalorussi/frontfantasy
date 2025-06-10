@@ -4,8 +4,8 @@ import { auth, db } from "../firebase";
 import { doc, getDoc, collection, getDocs } from "firebase/firestore";
 import Navbar from "../Components/Navbar";
 import Footer from "../Components/Footer";
-import { calcularPuntajeEquipo } from "../utils/puntajes";  // Importamos la función
 import { useNavigate } from "react-router-dom";
+import { calcularPuntajeEquipo } from '../utils/puntajes';
 
 export default function Home() {
   const [user, setUser] = useState(null);

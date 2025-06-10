@@ -68,7 +68,7 @@ export default function Equipo() {
           <>
             <div className="md:my-auto flex flex-col gap-y-4 md:flex md:flex-row justify-center gap-x-4 mx-auto">
               <SeccionEquipo team={team} />
-              <SeccionAlineacion roster={roster} />
+              <SeccionAlineacion roster={roster?.ronda1} />
             </div>
           </>
         )}

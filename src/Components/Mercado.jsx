@@ -37,6 +37,11 @@ function Mercado() {
   const [presupuesto, setPresupuesto] = useState(50000); // Presupuesto inicial
   const [usuarioId, setUsuarioId] = useState(null);
   const [rosterConfirmado, setRosterConfirmado] = useState(false); // Para saber si el roster está confirmado
+  const [rondas, setRondas] = useState([]);
+  const [rondaActual, setRondaActual] = useState(null);
+  const [rondaProxima, setRondaProxima] = useState(null);
+  const [puedeConfirmar, setPuedeConfirmar] = useState(false);
+
 
   useEffect(() => {
     const auth = getAuth();
@@ -91,9 +96,9 @@ function Mercado() {
             return {
               id: doc.id,
               nombre: data.nombre || data.Nombre || "",
-              club: (data.clubid || data.Clubid || "").toLowerCase(),
+              club: (data.club || data.Club || "").toLowerCase(),
               rol: data.rol || data.Rol || "",
-              valor: data.costo || data.Costo || 0,
+              valor: data.valor || data.Valor || 0,
               foto: data.foto || data.Foto || silueta,
             };
           })
@@ -110,29 +115,89 @@ function Mercado() {
   }, []);
 
   useEffect(() => {
+  async function evaluarRondas() {
+    const db = getFirestore();
+    const snapshot = await getDocs(collection(db, "rondas"));
+    const data = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+      fechainicio: doc.data().fechainicio.toDate(),
+      fechafin: doc.data().fechafin.toDate(),
+    }));
+
+    const ahora = new Date();
+
+    const actual = data.find(
+      (r) => ahora >= r.fechainicio && ahora <= r.fechafin
+    );
+    const proxima = data
+      .filter((r) => ahora < r.fechainicio)
+      .sort((a, b) => a.fechainicio - b.fechainicio)[0];
+
+    setRondas(data);
+    setRondaActual(actual || null);
+    setRondaProxima(proxima || null);
+
+    const horaLimite =
+      proxima && (proxima.fechainicio.getTime() - ahora.getTime()) >= 60 * 60 * 1000;
+    setPuedeConfirmar(!actual && horaLimite); // ✅ Solo se puede confirmar si no hay ronda activa y falta más de 1h para la próxima
+  }
+
+  evaluarRondas();
+}, []);
+
+
+  useEffect(() => {
     async function obtenerRosterConfirmado() {
-      if (!usuarioId) return;
+      if (!usuarioId || (!rondaProxima && !rondaActual)) return;
 
       const db = getFirestore();
       const rosterRef = doc(db, "rosters", usuarioId);
       const rosterSnapshot = await getDoc(rosterRef);
 
-      if (rosterSnapshot.exists()) {
-        const rosterData = rosterSnapshot.data();
-        setAlineacion({
-          top: rosterData.top,
-          jungle: rosterData.jungle,
-          mid: rosterData.mid,
-          bottom: rosterData.bottom,
-          support: rosterData.support,
-        });
-        setPresupuesto(50000); // Restauramos el presupuesto
-        setRosterConfirmado(true); // El roster ya está confirmado
+      if (!rosterSnapshot.exists()) return
+
+      const rosterData = rosterSnapshot.data();
+
+      let campoRonda = null;
+
+      if (rondaProxima) {
+      campoRonda = `ronda${rondaProxima.numero}`;
+      if (!rosterData[campoRonda]) {
+        const rondasOrdenadas = rondas
+          .filter(r => r.numero < rondaProxima.numero)
+          .sort((a, b) => b.numero - a.numero);
+        if (rondasOrdenadas.length > 0) {
+          campoRonda = `ronda${rondasOrdenadas[0].numero}`;
+        } else {
+          campoRonda = null;
+        }
       }
+    } else if (rondaActual) {
+      campoRonda = `ronda${rondaActual.numero}`;
     }
 
-    obtenerRosterConfirmado();
-  }, [usuarioId]);
+     if (!campoRonda || !rosterData[campoRonda]) return;
+
+    const rosterprevio = rosterData[campoRonda];
+
+    setAlineacion({
+      top: rosterprevio.top,
+      jungle: rosterprevio.jungle,
+      mid: rosterprevio.mid,
+      bottom: rosterprevio.bottom,
+      support: rosterprevio.support,
+    });
+      setPresupuesto(50); // Restauramos el presupuesto
+
+    const ahora = new Date();
+    const rondaEnCurso = rondaActual && ahora >= rondaActual.fechainicio && ahora <= rondaActual.fechafin;
+
+    setRosterConfirmado(!puedeConfirmar || rondaEnCurso);
+  }
+
+  obtenerRosterConfirmado();
+}, [usuarioId, rondaProxima, rondaActual, rondas, puedeConfirmar]);
 
   const seleccionarJugador = (jugador) => {
     if (rosterConfirmado && !alineacion[jugador.rol]) return; // Solo se puede reemplazar o eliminar, no seleccionar nuevos jugadores
@@ -163,27 +228,37 @@ function Mercado() {
   };
 
   const confirmarRoster = async () => {
-    if (Object.keys(alineacion).length !== 5 || !usuarioId || rosterConfirmado)
-      return;
+  if (!usuarioId || Object.keys(alineacion).length !== 5 || !puedeConfirmar || !rondaProxima) return;
 
-    const db = getFirestore();
-    try {
-      await setDoc(doc(db, "rosters", usuarioId), {
-        top: alineacion["top"] || null,
-        mid: alineacion["mid"] || null,
-        jungle: alineacion["jungle"] || null,
-        bottom: alineacion["bottom"] || null,
-        support: alineacion["support"] || null,
-        createdat: serverTimestamp(),
-        lastupdate: serverTimestamp(),
-        userid: usuarioId,
-      });
-      alert("Roster confirmado");
-      setRosterConfirmado(true); // El roster está confirmado
-    } catch (error) {
-      console.error("Error al guardar roster:", error);
-    }
+  const db = getFirestore();
+  const rosterRef = doc(db, "rosters", usuarioId);
+  const snapshot = await getDoc(rosterRef);
+
+  const campoRonda = `ronda${rondaProxima.numero}`;
+
+  const nuevoRoster = {
+    [campoRonda]: {
+      top: alineacion["top"],
+      jungle: alineacion["jungle"],
+      mid: alineacion["mid"],
+      bottom: alineacion["bottom"],
+      support: alineacion["support"],
+    },
+    lastupdate: serverTimestamp(),
+    userid: usuarioId,
   };
+
+  if (!snapshot.exists()) {
+    nuevoRoster.createdat = serverTimestamp();
+    await setDoc(rosterRef, nuevoRoster);
+  } else {
+    await setDoc(rosterRef, nuevoRoster, { merge: true });
+  }
+
+  alert("Roster confirmado para " + campoRonda);
+  setRosterConfirmado(true);
+};
+
 
   const filtrarJugadores = () => {
     return jugadores.filter((jugador) => {
@@ -285,34 +360,37 @@ function Mercado() {
 
         <div className="flex justify-center">
           <button
-            onClick={confirmarRoster}
-            disabled={
-              Object.keys(alineacion).length !== 5 ||
-              !usuarioId ||
-              rosterConfirmado
-            }
-            style={{
-              backgroundColor:
-                Object.keys(alineacion).length === 5 &&
-                usuarioId &&
-                !rosterConfirmado
-                  ? "#fff"
-                  : "#ccc",
-              color: "#333",
-              padding: "0.75rem 1.5rem",
-              borderRadius: "8px",
-              border: "none",
-              cursor:
-                Object.keys(alineacion).length === 5 &&
-                usuarioId &&
-                !rosterConfirmado
-                  ? "pointer"
-                  : "not-allowed",
-              marginBottom: "2rem",
-            }}
-          >
-            Confirmar Roster
-          </button>
+    onClick={confirmarRoster}
+    disabled={
+      Object.keys(alineacion).length !== 5 ||
+      !usuarioId ||
+      rosterConfirmado ||
+      !puedeConfirmar
+    }
+    style={{
+      backgroundColor:
+        Object.keys(alineacion).length === 5 &&
+        usuarioId &&
+        !rosterConfirmado &&
+        puedeConfirmar
+          ? "#fff"
+          : "#ccc",
+      color: "#333",
+      padding: "0.75rem 1.5rem",
+      borderRadius: "8px",
+      border: "none",
+      cursor:
+        Object.keys(alineacion).length === 5 &&
+        usuarioId &&
+        !rosterConfirmado &&
+        puedeConfirmar
+          ? "pointer"
+          : "not-allowed",
+      marginBottom: "2rem",
+    }}
+  >
+    Confirmar Roster
+  </button>
         </div>
       </div>
 
@@ -386,7 +464,7 @@ function Mercado() {
               <span style={{ fontWeight: "bold" }}>{jugador.valor} 💰</span>
               <button
                 onClick={() => seleccionarJugador(jugador)}
-                disabled={!habilitado}
+                disabled={jugador.valor > presupuesto || !puedeSeleccionar || rosterConfirmado}
                 style={{
                   padding: "0.5rem 1rem",
                   backgroundColor: habilitado ? botonColor : "#aaa",
