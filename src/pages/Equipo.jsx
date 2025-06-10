@@ -7,6 +7,8 @@ import Footer from '../Components/Footer';
 import SeccionEquipo from '../Components/SeccionEquipo';
 import SeccionAlineacion from '../Components/SeccionAlineacion';
 import { Routes, Route, useNavigate, Link } from 'react-router-dom';
+import useRondaActual from '../hooks/useRondaActual';
+
 
 export default function Equipo() {
   const [user, setUser] = useState(null);
@@ -14,6 +16,7 @@ export default function Equipo() {
   const [roster, setRoster] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const rondaActual = useRondaActual();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -68,7 +71,7 @@ export default function Equipo() {
           <>
             <div className="md:my-auto flex flex-col gap-y-4 md:flex md:flex-row justify-center gap-x-4 mx-auto">
               <SeccionEquipo team={team} />
-              <SeccionAlineacion roster={roster?.ronda1} />
+              <SeccionAlineacion roster={roster?.[`ronda${rondaActual}`]} />
             </div>
           </>
         )}

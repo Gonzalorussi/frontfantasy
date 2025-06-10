@@ -19,6 +19,7 @@ import bottom from "../assets/iconos/bottom.svg?react";
 import support from "../assets/iconos/support.svg?react";
 import { FaPlus, FaTrash, FaExchangeAlt } from "react-icons/fa";
 
+
 const iconosRol = {
   top: top,
   jungle: jungle,
@@ -66,26 +67,19 @@ function Mercado() {
           "t1",
           "geng",
           "hle",
-          "ns",
           "kt",
           "g2",
           "koi",
-          "kc",
           "blg",
-          "tes",
           "ig",
-          "wbg",
           "al",
           "we",
           "ie",
           "furia",
           "png",
-          "vks",
-          "tl",
           "fly",
           "c9",
           "sr",
-          "psg",
           "gam",
           "ctbc",
         ];
