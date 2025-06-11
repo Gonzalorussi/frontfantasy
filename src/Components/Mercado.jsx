@@ -14,8 +14,20 @@ import Navbar from "./Navbar";
 import Footer from "./Footer";
 import SeccionAlineacion from "./SeccionAlineacion";
 import { FaPlus, FaTrash, FaExchangeAlt } from "react-icons/fa";
+import top from '../assets/iconos/top.svg?react'
+import jungle from '../assets/iconos/jungle.svg?react'
+import mid from '../assets/iconos/mid.svg?react'
+import bottom from '../assets/iconos/bottom.svg?react'
+import support from '../assets/iconos/support.svg?react'
 
 const roles = ["top", "jungle", "mid", "bottom", "support"];
+const iconosRoles = {
+  top: top,
+  jungle: jungle,
+  mid: mid,
+  bottom: bottom,
+  support: support
+}
 
 function Mercado() {
   const [busqueda, setBusqueda] = useState("");
@@ -24,11 +36,10 @@ function Mercado() {
   const [alineacion, setAlineacion] = useState({});
   const [presupuesto, setPresupuesto] = useState(50000); // Presupuesto inicial
   const [usuarioId, setUsuarioId] = useState(null);
-  const [rosterConfirmado, setRosterConfirmado] = useState(false); // Para saber si el roster está confirmado
-  const [rondas, setRondas] = useState([]);
   const [rondaActual, setRondaActual] = useState(null);
   const [rondaProxima, setRondaProxima] = useState(null);
   const [edicionHabilitada, setEdicionHabilitada] = useState(false);
+
 
 
   useEffect(() => {
@@ -96,6 +107,7 @@ function Mercado() {
 
   useEffect(() => {
   async function obtenerRondasYRoster() {
+    if (!usuarioId) return;
     const db = getFirestore();
     const snapshot = await getDocs(collection(db, "rondas"));
     const data = snapshot.docs.map((doc) => ({
@@ -110,7 +122,6 @@ function Mercado() {
     const actual = data.find(r => ahora >= r.fechainicio && ahora <= r.fechafin);
     const proxima = data.filter(r => ahora < r.fechainicio).sort((a, b) => a.fechainicio - b.fechainicio)[0];
 
-    setRondas(data);
     setRondaActual(actual || null);
     setRondaProxima(proxima || null);
 
@@ -146,13 +157,13 @@ function Mercado() {
     setEdicionHabilitada(puedeEditar);
     }
 
-    if (usuarioId) obtenerRondasYRoster();
+    obtenerRondasYRoster();
   }, [usuarioId]);
 
   const seleccionarJugador = (jugador) => {
     if (!edicionHabilitada) return;
-
     const actual = alineacion[jugador.rol];
+    
     if (actual?.id === jugador.id) {
       const nuevo = { ...alineacion };
       delete nuevo[jugador.rol];
@@ -192,7 +203,6 @@ function Mercado() {
     }
 
     alert("Roster confirmado.");
-    setEdicionHabilitada(false);
   };
 
   const filtrarJugadores = () => {
@@ -226,10 +236,27 @@ function Mercado() {
         </button>
       </div>
 
-      <div className="flex mx-4 mt-4">
+      <div className="flex my-4 justify-between">
+        <div className="flex mx-4 mt-4">
         <input type="text" placeholder="Buscar jugador..." value={busqueda} onChange={(e) => setBusqueda(e.target.value)}
-          className="w-screen ring-1 ring-gray-900 rounded-sm text-xl" />
+          className="w-50 ring-1 ring-gray-900 rounded-sm text-xl" />
+        </div>
+        {roles.map((rol) => {
+          const Icono = iconosRoles[rol];
+          return (
+            <button
+              key={rol}
+              onClick={() => setRolActivo(rolActivo === rol ? null : rol)}
+              className={`mx-2 px-4 py-2 rounded-full text-2xl transition-all duration-200 
+                ${rolActivo === rol ? 'bg-blue-600 text-white' : 'bg-gray-300 text-black'}`}
+            >
+              <Icono />
+            </button>
+          );
+        })}
       </div>
+
+      
 
       <div className="mx-4">
         {filtrarJugadores().map(jugador => {
