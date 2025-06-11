@@ -5,10 +5,8 @@ import mid from "../assets/iconos/mid.svg?react";
 import bottom from "../assets/iconos/bottom.svg?react";
 import support from "../assets/iconos/support.svg?react";
 
-export default function SeccionAlineacion({ roster }) {
-  const roles = ['top', 'jungle', 'mid', 'bottom', 'support'];
-
-  const iconosRol = {
+const roles = ['top', 'jungle', 'mid', 'bottom', 'support'];
+ const iconosRol = {
     top: top,
     jungle: jungle,
     mid: mid,
@@ -16,19 +14,17 @@ export default function SeccionAlineacion({ roster }) {
     support: support,
   };
 
+export default function SeccionAlineacion({ roster }) {
   return (
     <section className="justify-center items-center mb-4 md:h-[54vh] md:w-[80vw] bg-gray-900 p-4 rounded-xl flex flex-col">
       
-      {/* Sección de Jugadores */}
       <div className="mt-4 grid grid-cols-5 gap-x-4">
-        {roster ? (
+        {Object.keys(roster || {}).length > 0 ? (
           roles.map((rol) => {
-            const jugador = roster[rol];
-            const Icono = iconosRol[rol];  // Icono del rol correspondiente
+            const jugador = roster?.[rol] ?? null;
+            const Icono = iconosRol[rol];
             return (
               <div key={rol} className="flex flex-col justify-center items-center md:w-50 lg:w-70 h-32 mt-2 p-4">
-                
-                {/* Icono de rol arriba del jugador */}
                 <div className="flex justify-center mb-2">
                   <Icono width={40} height={40} />
                 </div>
@@ -36,7 +32,6 @@ export default function SeccionAlineacion({ roster }) {
                 <p className="text-center text-xl text-gray-200 font-semibold">{rol}</p>
                 
                 {jugador ? (
-                  <>
                     <div className="mt-4 flex flex-col gap-4 items-center">
                       <img
                         src={jugador.foto}
@@ -55,7 +50,6 @@ export default function SeccionAlineacion({ roster }) {
                         {jugador.nombre} ({jugador.club})
                       </div>
                     </div>
-                  </>
                 ) : (
                   "No asignado"
                 )}

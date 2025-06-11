@@ -16,7 +16,7 @@ export default function Equipo() {
   const [roster, setRoster] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const rondaActual = useRondaActual();
+  const { rondaActual, rondaAnterior, proximaRonda, loading: rondaLoading, error } = useRondaActual();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -36,6 +36,8 @@ export default function Equipo() {
           if (rosterSnap.exists()) {
             console.log("Roster encontrado:", rosterSnap.data());
             setRoster(rosterSnap.data());
+            console.log(rosterSnap.data()["ronda1"])
+            
           }
         } catch (err) {
           console.error('Error al cargar datos:', err);
@@ -52,13 +54,46 @@ export default function Equipo() {
     return () => unsubscribe();
   }, [navigate]);
 
+  if (loading || rondaLoading) {
+    return (
+      <div>
+        <Navbar user={user} />
+        <main className="flex justify-center items-center h-[70vh] bg-gray-200">
+          <p className="text-xl font-semibold text-gray-700">Cargando datos...</p>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  let rondaNumero = null;
+  let textoEstadoRonda = '';
+
+  
+
+  if (rondaActual) {
+    rondaNumero = rondaActual.numero;
+    textoEstadoRonda = `Ronda actual: ${rondaNumero}`;
+  } else if (rondaAnterior) {
+    rondaNumero = rondaAnterior.numero;
+    textoEstadoRonda = `Última ronda finalizada: ${rondaNumero}`;
+  }else if (proximaRonda) {
+    rondaNumero = proximaRonda.numero;
+    textoEstadoRonda = `Temporada aún no comenzó. Tu roster inicial será para la Ronda ${rondaNumero}`;
+  } else {
+    textoEstadoRonda = 'No hay rondas disponibles actualmente';
+  }
+
+  const rosterActual = (rondaNumero && roster?.[`ronda${rondaNumero}`]) || null;
+
+  console.log("🩺 Ronda a mostrar:", rondaNumero);
+  console.log("📋 Roster a mostrar:", rosterActual);
+
   return (
     <div>
       <Navbar user={user} />
       <main className='md:h-[70vh] flex flex-col bg-gray-200'>
-        {loading ? (
-          <p>Cargando</p>
-        ) : !team ? (
+        { !team ? (
           <div>
             <p className="text-xl font-semibold text-gray-800 mb-4">¡Todavía no creaste tu equipo!</p>
             <Link to="/mi-equipo">
@@ -69,9 +104,18 @@ export default function Equipo() {
           </div>
         ) : (
           <>
+            <div className="text-center my-4 text-lg text-gray-800 font-semibold">
+              {textoEstadoRonda}
+            </div>
             <div className="md:my-auto flex flex-col gap-y-4 md:flex md:flex-row justify-center gap-x-4 mx-auto">
               <SeccionEquipo team={team} />
-              <SeccionAlineacion roster={roster?.[`ronda${rondaActual}`]} />
+              {rosterActual ? (
+                <SeccionAlineacion roster={rosterActual} />
+              ) : (
+                <div className="text-center text-gray-500 p-4">
+                  No tenés alineación confirmada para esta ronda.
+                </div>
+              )}
             </div>
           </>
         )}
