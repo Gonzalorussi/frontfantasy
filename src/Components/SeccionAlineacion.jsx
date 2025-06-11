@@ -16,7 +16,7 @@ const roles = ['top', 'jungle', 'mid', 'bottom', 'support'];
 
 export default function SeccionAlineacion({ roster }) {
   return (
-    <section className="justify-center items-center mb-4 md:h-[54vh] md:w-[80vw] bg-gray-900 p-4 rounded-xl flex flex-col">
+    <section className="justify-center items-center mb-8 bg-gray-900 p-4 rounded-xl flex flex-col w-full">
       
       <div className="mt-4 grid grid-cols-5 gap-x-4">
         {Object.keys(roster || {}).length > 0 ? (

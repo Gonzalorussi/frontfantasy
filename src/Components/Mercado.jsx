@@ -215,20 +215,19 @@ function Mercado() {
 
 
   return (
-    <div className="bg-gray-200">
+    <div className="bg-gray-200 min-h-screen">
       <Navbar />
-      <div className="flex flex-col items-center">
+      <div className="max-w-[1200px] mx-auto p-4">
         <h2 className="text-2xl font-semibold text-center mt-4">
           Mercado de Jugadores
         </h2>
-        <div className="rounded-sm w-100 bg-gray-900 p-4 text-gray-200 text-xl font-semibold text-center mt-4">
+        <div className="rounded-sm w-100 bg-gray-900 p-4 text-gray-200 text-xl font-semibold text-center mt-4 mb-4">
           <p>Presupuesto restante: {presupuesto} 💰</p>
         </div>
-      </div>
 
      <SeccionAlineacion roster={alineacion} />
 
-     <div className="flex justify-center">
+     <div className="flex justify-center my-8">
         <button onClick={confirmarRoster}
           disabled={Object.keys(alineacion).length !== 5 || !edicionHabilitada}
           className={`p-4 rounded-lg text-white ${Object.keys(alineacion).length === 5 && edicionHabilitada ? 'bg-green-600' : 'bg-gray-400 cursor-not-allowed'}`}>
@@ -236,7 +235,7 @@ function Mercado() {
         </button>
       </div>
 
-      <div className="flex my-4 justify-between">
+      <div className="flex my-4 justify-between mb-6">
         <div className="flex mx-4 mt-4">
         <input type="text" placeholder="Buscar jugador..." value={busqueda} onChange={(e) => setBusqueda(e.target.value)}
           className="w-50 ring-1 ring-gray-900 rounded-sm text-xl" />
@@ -258,7 +257,7 @@ function Mercado() {
 
       
 
-      <div className="mx-4">
+      <div className="mx-4 mb-8 h-[500px] overflow-y-auto rounded-lg border border-gray-300 bg-white shadow-inner p-2">
         {filtrarJugadores().map(jugador => {
           const enRol = alineacion[jugador.rol];
           const esSeleccionado = enRol?.id === jugador.id;
@@ -286,10 +285,10 @@ function Mercado() {
             <div key={jugador.id} className="flex items-center justify-between bg-white p-2 my-2 rounded shadow">
               <div className="flex items-center">
                 <img src={jugador.foto} alt={jugador.nombre} className="w-16 h-16 rounded-full" />
-                <div className="ml-4">
+                <div className="ml-4 flex col gap-8">
                   <h3 className="text-lg font-bold">{jugador.nombre}</h3>
-                  <p>{jugador.club.toUpperCase()}</p>
-                  <p>Rol: {jugador.rol}</p>
+                  <p>{jugador.club.toUpperCase()}</p>                 
+                  <p>{jugador.rol}</p>
                   <p>Valor: {jugador.valor}</p>
                 </div>
               </div>
@@ -304,6 +303,7 @@ function Mercado() {
               </div>
               );
           })}
+            </div>
             </div>
       <Footer />
     </div>
