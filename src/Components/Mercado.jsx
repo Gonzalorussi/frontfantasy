@@ -257,7 +257,7 @@ function Mercado() {
 
       
 
-      <div className="mx-4 mb-8 h-[500px] overflow-y-auto rounded-lg border border-gray-300 bg-white shadow-inner p-2">
+      <div className="max-h-[500px] overflow-y-auto scrollbar-thin scrollbar-thumb-blue-600 scrollbar-track-gray-200">
         {filtrarJugadores().map(jugador => {
           const enRol = alineacion[jugador.rol];
           const esSeleccionado = enRol?.id === jugador.id;
@@ -283,13 +283,13 @@ function Mercado() {
           }
           return (
             <div key={jugador.id} className="flex items-center justify-between bg-white p-2 my-2 rounded shadow">
-              <div className="flex items-center">
-                <img src={jugador.foto} alt={jugador.nombre} className="w-16 h-16 rounded-full" />
-                <div className="ml-4 flex col gap-8">
+              <div className="flex items-center w-full">
+                <img src={jugador.foto} alt={jugador.nombre} className="w-16 h-16" />
+                <div className="ml-4 grid [grid-template-columns:2fr_1fr_1fr_1fr] gap-4 w-full">
                   <h3 className="text-lg font-bold">{jugador.nombre}</h3>
                   <p>{jugador.club.toUpperCase()}</p>                 
                   <p>{jugador.rol}</p>
-                  <p>Valor: {jugador.valor}</p>
+                  <p>{jugador.valor}</p>
                 </div>
               </div>
               <button
