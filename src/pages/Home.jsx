@@ -5,99 +5,107 @@ import { doc, getDoc, collection, getDocs } from "firebase/firestore";
 import Navbar from "../Components/Navbar";
 import Footer from "../Components/Footer";
 import { useNavigate } from "react-router-dom";
-import { calcularPuntajeEquipo } from '../utils/puntajes';
+import useRondaActual from "../hooks/useRondaActual";
 
 export default function Home() {
   const [user, setUser] = useState(null);
   const [team, setTeam] = useState(null);
-  const [roster, setRoster] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [topTeams, setTopTeams] = useState([]);
-  const [puntosRondaActual, setPuntosRondaActual] = useState(0);  // Para los puntos de la ronda actual
-  const [puntosAcumulados, setPuntosAcumulados] = useState(0);    // Para los puntos acumulados
+  const [posicion, setPosicion] = useState(null);
+  const [puntosUltimaRonda, setPuntosUltimaRonda] = useState(0);
+  const [puntosAcumulados, setPuntosAcumulados] = useState(0);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  const { rondaActual, rondaAnterior, proximaRonda, loading: loadingRondas } = useRondaActual();
+
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      if (currentUser) {
-        setUser(currentUser);
-        try {
-          // Obtener datos del equipo
-          const teamRef = doc(db, "equipos", currentUser.uid);
-          const teamSnap = await getDoc(teamRef);
-          if (teamSnap.exists()) {
-            setTeam(teamSnap.data());
+  const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    if (currentUser) {
+      setUser(currentUser);
+    } else {
+      navigate("/login");
+    }
+  });
+
+  return () => unsubscribe();
+}, [navigate]);
+
+
+  useEffect(() => {
+     if (!user) return;
+     const cargarDatos = async () => {
+      setLoading(true);
+      try {
+        const teamRef = doc(db, "equipos", user.uid);
+        const teamSnap = await getDoc(teamRef);
+
+        if (teamSnap.exists()) {
+          const teamData = teamSnap.data();
+          setTeam(teamData);
+
+          // Puntaje acumulado:
+          setPuntosAcumulados(teamData.totalpuntos || 0);
+
+          // Puntaje de última ronda terminada:
+          // Usamos rondaAnterior si existe, sino la última ronda disponible
+          let numeroRondaParaPuntaje = null;
+
+          if (rondaAnterior) {
+            numeroRondaParaPuntaje = rondaAnterior.numero;
+          } else if (!rondaActual && !rondaAnterior && proximaRonda === null) {
+            // Si no hay ronda actual ni próxima, se asume que ya terminaron todas, 
+            // tomamos la ronda con mayor número (última ronda)
+            const rondasSnapshot = await getDocs(collection(db, 'rondas'));
+            let maxNumero = 0;
+            rondasSnapshot.forEach(doc => {
+              const data = doc.data();
+              if (data.numero > maxNumero) maxNumero = data.numero;
+            });
+            numeroRondaParaPuntaje = maxNumero;
           }
 
-          // Obtener datos del roster
-          const rosterRef = doc(db, "rosters", currentUser.uid);
-          const rosterSnap = await getDoc(rosterRef);
-          if (rosterSnap.exists()) {
-            setRoster(rosterSnap.data());
-
-            // Calcular puntos de la ronda actual
-            const puntosDeRonda = calcularPuntosRonda(rosterSnap.data().jugadores);
-            setPuntosRondaActual(puntosDeRonda);
+          if (numeroRondaParaPuntaje !== null) {
+            const puntos = teamData.puntajesronda?.[`ronda${numeroRondaParaPuntaje}`] || 0;
+            setPuntosUltimaRonda(puntos);
+          } else {
+            setPuntosUltimaRonda(0);
           }
 
-          // Traer los equipos y calcular los puntajes
+          // Obtener todos los equipos para ranking y posición
           const teamsSnapshot = await getDocs(collection(db, "equipos"));
-          const teamsList = [];
+          const teamsList = teamsSnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
 
-          // Obtener puntaje de cada equipo
-          for (const teamDoc of teamsSnapshot.docs) {
-            const teamData = teamDoc.data();
-            let puntaje = 0;
+          const ordenados = teamsList.sort((a, b) => (b.totalpuntos || 0) - (a.totalpuntos || 0));
+          setTopTeams(ordenados.slice(0, 3));
 
-            try {
-              puntaje = await calcularPuntajeEquipo(teamDoc.id);
-            } catch (error) {
-              console.error("Error al calcular puntaje", error);
-            }
-
-            // Agregar equipo con puntaje calculado
-            teamsList.push({ ...teamData, id: teamDoc.id, puntaje });
-          }
-
-          // Ordenar por puntaje descendente y tomar los primeros 3
-          teamsList.sort((a, b) => b.puntaje - a.puntaje);
-          setTopTeams(teamsList.slice(0, 3));
-
-        } catch (err) {
-          console.error("Error al cargar datos:", err);
+          const posicionUsuario = ordenados.findIndex(team => team.id === user.uid) + 1;
+          setPosicion(posicionUsuario);
+        } else {
+          setTeam(null);
+          setPuntosAcumulados(0);
+          setPuntosUltimaRonda(0);
+          setPosicion(null);
         }
+      } catch (err) {
+        console.error("Error al cargar datos:", err);
+      } finally {
         setLoading(false);
-      } else {
-        setUser(null);
-        setTeam(null);
-        setRoster(null);
-        navigate("/login");
       }
-    });
+    };
 
-    return () => unsubscribe();
-  }, [navigate]);
+    if (!loadingRondas) {
+      cargarDatos();
+    }
+  }, [user, rondaActual, rondaAnterior, proximaRonda, loadingRondas]);
 
-  // Función para calcular los puntos de la ronda
-  const calcularPuntosRonda = (jugadores, rondaActual) => {
-    // Sumar los puntos de cada jugador para la ronda actual
-    return jugadores.reduce((total, jugador) => {
-      // Acceder al puntaje de la ronda específica dentro del campo 'puntajeronda'
-      const puntajeRonda = jugador.puntajeronda[rondaActual] || 0; // Si no tiene puntaje, asumimos que es 0
-      return total + puntajeRonda;
-    }, 0);
-  };
-
-  // Acumular los puntos
-  const confirmarRoster = () => {
-    setPuntosAcumulados(prev => prev + puntosRondaActual);  // Acumular puntos de la ronda actual
-    // No resetear los puntos de la ronda actual si ya se confirmó antes
-  };
-
-  return (
+ return (
     <div>
       <Navbar user={user} />
-      <main className="flex flex-col bg-gray-200">
+      <main className="flex flex-col bg-gray-200 min-h-screen">
         <h1 className="text-center my-4 font-semibold text-2xl text-gray-900">
           Bienvenido, {user?.displayName}
         </h1>
@@ -127,7 +135,7 @@ export default function Home() {
                     <tr key={team.id} className="bg-gray-900 hover:bg-gray-700">
                       <td className="px-6 py-4">{index + 1}</td>
                       <td className="px-6 py-4">{team.nombreequipo}</td>
-                      <td className="px-6 py-4">{team.puntaje}</td>
+                      <td className="px-6 py-4">{team.totalpuntos}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -153,22 +161,20 @@ export default function Home() {
 
             {/* Estadísticas */}
             <p className="mt-4 text-center font-semibold text-2xl">ESTADÍSTICAS</p>
-            <div className="flex justify-between gap-x-4 my-4">
-              <div className="bg-gray-400 w-full p-4 rounded-lg shadow-lg text-center">
+            <div className="flex justify-between gap-x-4 my-4 flex-wrap">
+              <div className="bg-gray-400 w-full md:w-1/3 p-4 rounded-lg shadow-lg text-center">
                 <p className="text-lg font-medium text-gray-700">TU POSICIÓN</p>
-                <p className="text-2xl font-bold text-blue-600">#1</p> {/* Aquí puedes poner el número real */}
+                <p className="text-2xl font-bold text-blue-600">#{posicion ?? '-'}</p>
               </div>
 
-              <div className="flex justify-between gap-x-4 my-4">
-                <div className="bg-gray-400 w-full p-4 rounded-lg shadow-lg text-center">
-                  <p className="text-lg font-medium text-gray-700">TOTAL RONDA</p>
-                  <p className="text-2xl font-bold text-green-600">{puntosRondaActual}</p>  {/* Puntos de la ronda actual */}
-                </div>
+              <div className="bg-gray-400 w-full md:w-1/3 p-4 rounded-lg shadow-lg text-center">
+                <p className="text-lg font-medium text-gray-700">PUNTOS ÚLTIMA RONDA</p>
+                <p className="text-2xl font-bold text-green-600">{puntosUltimaRonda.toFixed(2)}</p>
+              </div>
 
-                <div className="bg-gray-400 w-full p-4 rounded-lg shadow-lg text-center">
-                  <p className="text-lg font-medium text-gray-700">TOTAL PUNTOS</p>
-                  <p className="text-2xl font-bold text-green-600">{puntosAcumulados}</p>  {/* Puntos acumulados */}
-                </div>
+              <div className="bg-gray-400 w-full md:w-1/3 p-4 rounded-lg shadow-lg text-center">
+                <p className="text-lg font-medium text-gray-700">TOTAL PUNTOS</p>
+                <p className="text-2xl font-bold text-green-600">{puntosAcumulados.toFixed(2)}</p>
               </div>
             </div>
           </div>
