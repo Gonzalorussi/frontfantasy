@@ -16,42 +16,41 @@ const roles = ['top', 'jungle', 'mid', 'bottom', 'support'];
 
 export default function SeccionAlineacion({ roster }) {
   return (
-    <section className="justify-center items-center mb-8 bg-gray-900 p-4 rounded-xl flex flex-col w-full">
+   <section className="flex flex-col justify-center items-center min-h-[300px] bg-gray-900 p-4 rounded-xl w-full">
       
-      <div className="mt-4 grid grid-cols-5 gap-x-4">
+      <div className="mt-4 grid grid-cols-5 gap-x-4 gap-y-6">
         {Object.keys(roster || {}).length > 0 ? (
           roles.map((rol) => {
             const jugador = roster?.[rol] ?? null;
             const Icono = iconosRol[rol];
             return (
-              <div key={rol} className="flex flex-col justify-center items-center md:w-50 lg:w-70 h-32 mt-2 p-4">
+              <div key={rol} className="flex flex-col justify-center items-center p-2 bg-gray-800 rounded-lg shadow">
+                
                 <div className="flex justify-center mb-2">
                   <Icono width={40} height={40} />
                 </div>
 
-                <p className="text-center text-xl text-gray-200 font-semibold">{rol}</p>
+                <p className="text-center text-xl text-gray-200 font-semibold mb-2">{rol}</p>
                 
                 {jugador ? (
-                    <div className="mt-4 flex flex-col gap-4 items-center">
-                      <img
-                        src={jugador.foto}
-                        alt={jugador.nombre}
-                        width={100}
-                        style={{
-                          width: "70px",
-                          height: "70px",
-                          objectFit: "cover",
-                          borderRadius: "50%",
-                          border: "2px solid #ccc",
-                          marginBottom: "0.5rem",
-                        }}
-                      />
-                      <div className="flex text-sm font-semibold text-gray-200">
-                        {jugador.nombre} ({jugador.club})
-                      </div>
+                  <div className="flex flex-col gap-2 items-center">
+                    <img
+                      src={jugador.foto}
+                      alt={jugador.nombre}
+                      style={{
+                        width: "70px",
+                        height: "70px",
+                        objectFit: "cover",
+                        borderRadius: "50%",
+                        border: "2px solid #ccc",
+                      }}
+                    />
+                    <div className="text-sm font-semibold text-gray-200 text-center w-[90px] truncate">
+                      {jugador.nombre} ({jugador.club})
                     </div>
+                  </div>
                 ) : (
-                  "No asignado"
+                  <div className="text-gray-400 text-sm mt-6">No asignado</div>
                 )}
               </div>
             );

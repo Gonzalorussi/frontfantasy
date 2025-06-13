@@ -13,7 +13,7 @@ import silueta from "../assets/img/silueta.webp";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import SeccionAlineacion from "./SeccionAlineacion";
-import { FaPlus, FaTrash, FaExchangeAlt } from "react-icons/fa";
+import { FaPlus, FaTrash, FaExchangeAlt, FaSearch  } from "react-icons/fa";
 import top from '../assets/iconos/top.svg?react'
 import jungle from '../assets/iconos/jungle.svg?react'
 import mid from '../assets/iconos/mid.svg?react'
@@ -34,7 +34,7 @@ function Mercado() {
   const [rolActivo, setRolActivo] = useState(null);
   const [jugadores, setJugadores] = useState([]);
   const [alineacion, setAlineacion] = useState({});
-  const [presupuesto, setPresupuesto] = useState(50000); // Presupuesto inicial
+  const [presupuesto, setPresupuesto] = useState(50);
   const [usuarioId, setUsuarioId] = useState(null);
   const [rondaActual, setRondaActual] = useState(null);
   const [rondaProxima, setRondaProxima] = useState(null);
@@ -215,99 +215,134 @@ function Mercado() {
 
 
   return (
-    <div className="bg-gray-200 min-h-screen">
-      <Navbar />
-      <div className="max-w-[1200px] mx-auto p-4">
-        <h2 className="text-2xl font-semibold text-center mt-4">
-          Mercado de Jugadores
-        </h2>
-        <div className="rounded-sm w-100 bg-gray-900 p-4 text-gray-200 text-xl font-semibold text-center mt-4 mb-4">
-          <p>Presupuesto restante: {presupuesto} 💰</p>
-        </div>
+  <div className="bg-gray-900 min-h-screen text-gray-200">
+    <Navbar />
 
-     <SeccionAlineacion roster={alineacion} />
+    {/* Contenedor central de 1200px */}
+    <div className="max-w-[1200px] mx-auto p-4 flex flex-col gap-4">
 
-     <div className="flex justify-center my-8">
-        <button onClick={confirmarRoster}
-          disabled={Object.keys(alineacion).length !== 5 || !edicionHabilitada}
-          className={`p-4 rounded-lg text-white ${Object.keys(alineacion).length === 5 && edicionHabilitada ? 'bg-green-600' : 'bg-gray-400 cursor-not-allowed'}`}>
-          Confirmar Roster
-        </button>
+  {/* Bloque presupuesto + alineación + confirmar */}
+  <div className="sticky top-0 z-10 bg-gray-800 rounded p-4 flex items-center gap-6">
+    {/* Presupuesto */}
+    <div className="justify-center items-center w-40 h-20 bg-gray-700 rounded text-xl font-semibold p-2">
+      Presupuesto restante: <span className="text-gray-200">{presupuesto}</span>
+    </div>
+
+    {/* Alineación */}
+    <div className="flex-grow mx-4 overflow-x-auto">
+      <SeccionAlineacion roster={alineacion} />
+    </div>
+
+    {/* Confirmar */}
+    <div>
+      <button
+        onClick={confirmarRoster}
+        disabled={Object.keys(alineacion).length !== 5 || !edicionHabilitada}
+        className={`px-6 py-3 rounded-lg font-semibold text-white transition-colors ${
+          Object.keys(alineacion).length === 5 && edicionHabilitada
+            ? "bg-green-600 hover:bg-green-700"
+            : "bg-gray-600 cursor-not-allowed"
+        }`}
+      >
+        Confirmar Roster
+      </button>
+    </div>
+  </div>
+
+  {/* Nuevo contenedor flex para búsqueda + lista */}
+  <div className="flex gap-6">
+
+    {/* Barra búsqueda izquierda */}
+    <div className="flex flex-col w-[320px] rounded p-4 sticky top-[calc(64px+1rem)] self-start">
+      {/* input búsqueda */}
+      <div className="relative mb-4">
+        <input
+          type="text"
+          placeholder="Buscar jugador..."
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
+          className="w-full pl-10 pr-4 py-2 rounded bg-gray-700 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <FaSearch className="absolute left-3 top-2.5 text-gray-400" />
       </div>
 
-      <div className="flex my-4 justify-between mb-6">
-        <div className="flex mx-4 mt-4">
-        <input type="text" placeholder="Buscar jugador..." value={busqueda} onChange={(e) => setBusqueda(e.target.value)}
-          className="w-50 ring-1 ring-gray-900 rounded-sm text-xl" />
-        </div>
+      {/* Botones filtro roles */}
+      <div className="flex flex-wrap gap-2 justify-center">
         {roles.map((rol) => {
           const Icono = iconosRoles[rol];
           return (
             <button
               key={rol}
               onClick={() => setRolActivo(rolActivo === rol ? null : rol)}
-              className={`mx-2 px-4 py-2 rounded-full text-2xl transition-all duration-200 
-                ${rolActivo === rol ? 'bg-blue-600 text-white' : 'bg-gray-300 text-black'}`}
+              className={`px-3 py-1 rounded-full text-xl flex items-center gap-1 transition-colors ${
+                rolActivo === rol
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-600 text-gray-300 hover:bg-gray-700"
+              }`}
+              title={rol}
             >
               <Icono />
             </button>
           );
         })}
       </div>
-
-      
-
-      <div className="max-h-[500px] overflow-y-auto scrollbar-thin scrollbar-thumb-blue-600 scrollbar-track-gray-200">
-        {filtrarJugadores().map(jugador => {
-          const enRol = alineacion[jugador.rol];
-          const esSeleccionado = enRol?.id === jugador.id;
-          const rolOcupado = Boolean(enRol);
-          const puedeReemplazar = rolOcupado && !esSeleccionado && presupuesto + enRol.valor - jugador.valor >= 0;
-          const puedeSeleccionar = !rolOcupado && jugador.valor <= presupuesto;
-
-          let botonTexto = "Seleccionar";
-          let color = "#007bff";
-          let habilitado = edicionHabilitada && puedeSeleccionar;
-          let icono = <FaPlus />;
-
-          if (esSeleccionado) {
-            botonTexto = "Eliminar";
-            color = "#dc3545";
-            habilitado = edicionHabilitada;
-            icono = <FaTrash />;
-          } else if (puedeReemplazar) {
-            botonTexto = "Reemplazar";
-            color = "#fd7e14";
-            habilitado = edicionHabilitada;
-            icono = <FaExchangeAlt />;
-          }
-          return (
-            <div key={jugador.id} className="flex items-center justify-between bg-white p-2 my-2 rounded shadow">
-              <div className="flex items-center w-full">
-                <img src={jugador.foto} alt={jugador.nombre} className="w-16 h-16" />
-                <div className="ml-4 grid [grid-template-columns:2fr_1fr_1fr_1fr] gap-4 w-full">
-                  <h3 className="text-lg font-bold">{jugador.nombre}</h3>
-                  <p>{jugador.club.toUpperCase()}</p>                 
-                  <p>{jugador.rol}</p>
-                  <p>{jugador.valor}</p>
-                </div>
-              </div>
-              <button
-                onClick={() => seleccionarJugador(jugador)}
-                disabled={!habilitado}
-                className={`px-4 py-2 rounded text-white ${habilitado ? '' : 'opacity-50'}`}
-                style={{ backgroundColor: color }}
-              >
-                {icono} {botonTexto}
-              </button>
-              </div>
-              );
-          })}
-            </div>
-            </div>
-      <Footer />
     </div>
-  );
+
+    {/* Lista de jugadores derecha */}
+    <div className="flex-grow max-h-[calc(100vh-150px)] overflow-y-auto scrollbar-thin scrollbar-thumb-blue-600 scrollbar-track-gray-700 bg-gray-800 rounded p-4">
+      {filtrarJugadores().map((jugador) => {
+        const enRol = alineacion[jugador.rol];
+        const esSeleccionado = enRol?.id === jugador.id;
+        const rolOcupado = Boolean(enRol);
+        const puedeReemplazar = rolOcupado && !esSeleccionado && presupuesto + enRol.valor - jugador.valor >= 0;
+        const puedeSeleccionar = !rolOcupado && jugador.valor <= presupuesto;
+
+        let botonTexto = "Seleccionar";
+        let color = "#007bff";
+        let habilitado = edicionHabilitada && puedeSeleccionar;
+        let icono = <FaPlus />;
+
+        if (esSeleccionado) {
+          botonTexto = "Eliminar";
+          color = "#dc3545";
+          habilitado = edicionHabilitada;
+          icono = <FaTrash />;
+        } else if (puedeReemplazar) {
+          botonTexto = "Reemplazar";
+          color = "#fd7e14";
+          habilitado = edicionHabilitada;
+          icono = <FaExchangeAlt />;
+        }
+
+        return (
+          <div key={jugador.id} className="flex items-center justify-between bg-gray-700 p-2 rounded shadow mb-2">
+            <div className="flex items-center gap-3 w-full">
+              <img src={jugador.foto} alt={jugador.nombre} className="w-14 h-14 rounded object-cover flex-shrink-0" />
+              <div className="grid grid-cols-[150px_60px_60px_60px] gap-4 w-full text-sm">
+                <h3 className="font-semibold truncate" title={jugador.nombre}>{jugador.nombre}</h3>
+                <p className="uppercase text-center">{jugador.club}</p>
+                <p className="capitalize text-center">{jugador.rol}</p>
+                <p className="text-center font-mono">{jugador.valor}</p>
+              </div>
+            </div>
+            <button
+              onClick={() => seleccionarJugador(jugador)}
+              disabled={!habilitado}
+              className={`px-3 py-1 rounded text-white flex items-center justify-center gap-1 w-[160px] ${habilitado ? "" : "opacity-50 cursor-not-allowed"}`}
+              style={{ backgroundColor: color }}
+            >
+              {icono} {botonTexto}
+            </button>
+          </div>
+        );
+      })}
+    </div>
+  </div>
+</div>
+
+    <Footer />
+  </div>
+);
 }
 
 export default Mercado;
