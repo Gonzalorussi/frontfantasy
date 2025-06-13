@@ -8,8 +8,8 @@ export default function SeccionEquipo({ team }) {
   console.log(team)
 
   return (
-    <section className="md:h-[54vh] md:w-[30vw] bg-gray-900 justify-center rounded-xl flex flex-col">
-      <h2 className="text-center text-gray-200 text-xl font-semibold mb-2">{nombreequipo}</h2>
+    <section className="h-60 w-60 md:h-[54vh] md:w-[30vw] bg-gray-900 justify-center rounded-xl flex flex-col items-center p-4">
+      <h2 className="text-center text-gray-200 text-xl font-semibold mb-4">{nombreequipo}</h2>
       <VistaPreviaEscudo
         escudoId={escudoid}
         rellenoId={rellenoid}

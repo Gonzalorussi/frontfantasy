@@ -6,9 +6,8 @@ import Navbar from '../Components/Navbar';
 import Footer from '../Components/Footer';
 import SeccionEquipo from '../Components/SeccionEquipo';
 import SeccionAlineacion from '../Components/SeccionAlineacion';
-import { Routes, Route, useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import useRondaActual from '../hooks/useRondaActual';
-
 
 export default function Equipo() {
   const [user, setUser] = useState(null);
@@ -16,43 +15,66 @@ export default function Equipo() {
   const [roster, setRoster] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const { rondaActual, rondaAnterior, proximaRonda, loading: rondaLoading, error } = useRondaActual();
+  const { rondaActual, rondaAnterior, proximaRonda, loading: rondaLoading } = useRondaActual();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      if (currentUser) {
-        setUser(currentUser);
-        try {
-          const teamRef = doc(db, 'equipos', currentUser.uid);
-          const teamSnap = await getDoc(teamRef);
-          console.log(teamSnap);
-          if (teamSnap.exists()) {
-            console.log(teamSnap.data);
-            setTeam(teamSnap.data());
-          }
+  const unsubscribe = onAuthStateChanged(auth, currentUser => {
+    if (currentUser) {
+      setUser(currentUser);
+    } else {
+      setUser(null);
+      setTeam(null);
+      setRoster(null);
+      navigate('/login');
+    }
+  });
+  return () => unsubscribe();
+}, [navigate]);
 
-          const rosterRef = doc(db, 'rosters', currentUser.uid);
-          const rosterSnap = await getDoc(rosterRef);
-          if (rosterSnap.exists()) {
-            console.log("Roster encontrado:", rosterSnap.data());
-            setRoster(rosterSnap.data());
-            console.log(rosterSnap.data()["ronda1"])
-            
+  useEffect(() => {
+  if (!user) return;
+
+  async function fetchData() {
+    try {
+      const teamRef = doc(db, 'equipos', user.uid);
+      const teamSnap = await getDoc(teamRef);
+      if (teamSnap.exists()) setTeam(teamSnap.data());
+
+      const rosterRef = doc(db, 'rosters', user.uid);
+      const rosterSnap = await getDoc(rosterRef);
+      if (rosterSnap.exists()) {
+        const rosterData = rosterSnap.data();
+
+        if (rondaActual) {
+          const rosterRondaActual = rosterData[`ronda${rondaActual.numero}`];
+          setRoster(rosterRondaActual || null);
+          }else {
+          const rondasConfirmadas = Object.keys(rosterData)
+            .filter(key => key.startsWith('ronda'))
+            .map(key => parseInt(key.replace('ronda', ''), 10))
+            .sort((a, b) => b - a);
+
+          if (rondasConfirmadas.length > 0) {
+            setRoster(rosterData[`ronda${rondasConfirmadas[0]}`]);
+          }else {
+            setRoster(null);
           }
-        } catch (err) {
-          console.error('Error al cargar datos:', err);
         }
-        setLoading(false);
-      } else {
-        setUser(null);
-        setTeam(null);
+      }else {
         setRoster(null);
-        navigate('/login');
       }
-    });
+    }catch (err) {
+      console.error(err);
+      setRoster(null);
+    }finally {
+      setLoading(false);
+    }
+  }
 
-    return () => unsubscribe();
-  }, [navigate]);
+  fetchData();
+
+}, [user, rondaActual]);
+
 
   if (loading || rondaLoading) {
     return (
@@ -66,28 +88,24 @@ export default function Equipo() {
     );
   }
 
-  let rondaNumero = null;
   let textoEstadoRonda = '';
-
-  
-
   if (rondaActual) {
-    rondaNumero = rondaActual.numero;
-    textoEstadoRonda = `Ronda actual: ${rondaNumero}`;
+    textoEstadoRonda = `Ronda actual: ${rondaActual.numero} en progreso`;
+    console.log(textoEstadoRonda)
   } else if (rondaAnterior) {
-    rondaNumero = rondaAnterior.numero;
-    textoEstadoRonda = `Última ronda finalizada: ${rondaNumero}`;
-  }else if (proximaRonda) {
-    rondaNumero = proximaRonda.numero;
-    textoEstadoRonda = `Temporada aún no comenzó. Tu roster inicial será para la Ronda ${rondaNumero}`;
+    const fechaFormateada = rondaAnterior.Fechafin
+      .setLocale('es')
+      .toFormat("dd 'de' LLLL 'de' yyyy - HH:mm");
+    textoEstadoRonda = `Última ronda finalizada: Ronda ${rondaAnterior.numero} el día ${fechaFormateada}`;
+    console.log(rondaAnterior)
+    console.log(textoEstadoRonda)
+  } else if (proximaRonda) {
+    textoEstadoRonda = `Temporada aún no comenzó. Tu roster inicial será para la Ronda ${proximaRonda.numero}`;
+    console.log(textoEstadoRonda)
   } else {
     textoEstadoRonda = 'No hay rondas disponibles actualmente';
+    console.log(textoEstadoRonda)
   }
-
-  const rosterActual = (rondaNumero && roster?.[`ronda${rondaNumero}`]) || null;
-
-  console.log("🩺 Ronda a mostrar:", rondaNumero);
-  console.log("📋 Roster a mostrar:", rosterActual);
 
   return (
     <div>
@@ -109,8 +127,8 @@ export default function Equipo() {
             </div>
             <div className="md:my-auto flex flex-col gap-y-4 md:flex md:flex-row justify-center gap-x-4 mx-auto">
               <SeccionEquipo team={team} />
-              {rosterActual ? (
-                <SeccionAlineacion roster={rosterActual} />
+              {roster ? (
+                <SeccionAlineacion roster={roster} />
               ) : (
                 <div className="text-center text-gray-500 p-4">
                   No tenés alineación confirmada para esta ronda.

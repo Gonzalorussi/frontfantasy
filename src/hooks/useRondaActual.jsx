@@ -53,17 +53,24 @@ const useRondaActual = () => {
             setRondaActual(null);
             setRondaAnterior(null);
             setProximaRonda(rondas[0]);
-          } else {
-            setRondaActual(null);
-            setRondaAnterior(rondas[rondas.length - 1]);
-            setProximaRonda(null);
-          }
-        }
+            } else {
+              const rondasFinalizadas = rondas.filter(r => ahora >= r.Fechafin);
+              const ultimaFinalizada = rondasFinalizadas.length > 0 
+              ? rondasFinalizadas[rondasFinalizadas.length - 1] 
+              : null;
 
-      } catch (err) {
-        console.error("Error al obtener las rondas:", err);
-        setError(err);
-      } finally {
+              const rondasFuturas = rondas.filter(r => ahora < r.Fechainicio);
+              const proxima = rondasFuturas.length > 0 ? rondasFuturas[0] : null;
+
+              setRondaActual(null);
+              setRondaAnterior(ultimaFinalizada);
+              setProximaRonda(proxima);
+            }
+          }
+        } catch (err) {
+          console.error("Error al obtener las rondas:", err);
+          setError(err);
+        } finally {
         setLoading(false);
       }
     };
