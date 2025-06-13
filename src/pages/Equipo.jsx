@@ -108,38 +108,39 @@ export default function Equipo() {
   }
 
   return (
-    <div>
-      <Navbar user={user} />
-      <main className='md:h-[70vh] flex flex-col bg-gray-200'>
-        { !team ? (
-          <div>
-            <p className="text-xl font-semibold text-gray-800 mb-4">¡Todavía no creaste tu equipo!</p>
-            <Link to="/mi-equipo">
-              <button className="bg-red-800 text-white px-6 py-3 rounded-lg shadow-md text-lg font-semibold transition duration-300 ease-in-out transform hover:bg-blue-500 hover:scale-105">
-                Crear mi equipo
-              </button>
-            </Link>
+  <div className="bg-gray-900 min-h-screen flex flex-col">
+    <Navbar user={user} />
+    <main className='md:h-[70vh] flex flex-col flex-grow bg-gray-800'>
+      {!team ? (
+        <div className="flex flex-col items-center justify-center flex-grow">
+          <p className="text-xl font-semibold text-gray-200 mb-4">
+            ¡Todavía no creaste tu equipo!
+          </p>
+          <Link to="/mi-equipo">
+            <button className="bg-red-800 text-white px-6 py-3 rounded-lg shadow-md text-lg font-semibold transition duration-300 ease-in-out transform hover:bg-blue-500 hover:scale-105">
+              Crear mi equipo
+            </button>
+          </Link>
+        </div>
+      ) : (
+        <>
+          <div className="text-center my-4 text-lg text-gray-200 font-semibold">
+            {textoEstadoRonda}
           </div>
-        ) : (
-          <>
-            <div className="text-center my-4 text-lg text-gray-800 font-semibold">
-              {textoEstadoRonda}
-            </div>
-            <div className="md:my-auto flex flex-col gap-y-4 md:flex md:flex-row justify-center gap-x-4 mx-auto">
-              <SeccionEquipo team={team} />
-              {roster ? (
-                <SeccionAlineacion roster={roster} />
-              ) : (
-                <div className="text-center text-gray-500 p-4">
-                  No tenés alineación confirmada para esta ronda.
-                </div>
-              )}
-            </div>
-          </>
-        )}
-
-      </main>
-      <Footer />
-    </div>
-  );
+          <div className="md:my-auto flex flex-col gap-y-4 md:flex md:flex-row justify-center gap-x-4 mx-auto">
+            <SeccionEquipo team={team} />
+            {roster ? (
+              <SeccionAlineacion roster={roster} size="large" />
+            ) : (
+              <div className="text-center text-gray-400 p-4">
+                No tenés alineación confirmada para esta ronda.
+              </div>
+            )}
+          </div>
+        </>
+      )}
+    </main>
+    <Footer />
+  </div>
+);
 }
