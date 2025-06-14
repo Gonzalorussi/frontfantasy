@@ -83,10 +83,8 @@ function Posiciones() {
     return (
       <div>
         <Navbar />
-        <main className="flex justify-center items-center h-[70vh] bg-gray-200">
-          <p className="text-xl font-semibold text-gray-700">
-            Cargando datos...
-          </p>
+      <main className="flex justify-center items-center h-[70vh] bg-gray-900">
+            <p className="text-gray-200 font-semibold text-4xl">Cargando...</p>
         </main>
         <Footer />
       </div>

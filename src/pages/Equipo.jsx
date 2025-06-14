@@ -76,17 +76,18 @@ export default function Equipo() {
 }, [user, rondaActual]);
 
 
-  if (loading || rondaLoading) {
-    return (
-      <div>
-        <Navbar user={user} />
-        <main className="flex justify-center items-center h-[70vh] bg-gray-200">
-          <p className="text-xl font-semibold text-gray-700">Cargando datos...</p>
-        </main>
-        <Footer />
-      </div>
-    );
-  }
+if (loading || rondaLoading) {
+  return (
+    <div className="bg-gray-900 min-h-screen flex flex-col">
+      <Navbar user={user} />
+      <main className="flex justify-center items-center h-[70vh] bg-gray-800">
+            <p className="text-gray-200 font-semibold text-4xl">Cargando...</p>
+      </main>
+      <Footer />
+    </div>
+  );
+}
+
 
   let textoEstadoRonda = '';
   if (rondaActual) {
@@ -117,7 +118,7 @@ export default function Equipo() {
             ¡Todavía no creaste tu equipo!
           </p>
           <Link to="/mi-equipo">
-            <button className="bg-red-800 text-white px-6 py-3 rounded-lg shadow-md text-lg font-semibold transition duration-300 ease-in-out transform hover:bg-blue-500 hover:scale-105">
+            <button className="cursor-pointer bg-red-800 text-white px-6 py-3 rounded-lg shadow-md text-lg font-semibold transition duration-300 ease-in-out transform hover:bg-red-500 hover:scale-105">
               Crear mi equipo
             </button>
           </Link>
