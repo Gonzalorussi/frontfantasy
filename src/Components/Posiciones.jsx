@@ -6,13 +6,29 @@ import Footer from "./Footer";
 import VistaPreviaEscudo from "./VistaPreviaEscudo";
 import { Listbox, Transition } from "@headlessui/react";
 import { FaChevronDown } from "react-icons/fa";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../firebase"; // Asumiendo que tienes la configuración de Firebase en este archivo
 
 function Posiciones() {
+  const [user, setUser] = useState(null); // Estado para el usuario
   const [teams, setTeams] = useState([]);
   const [modoVista, setModoVista] = useState("total");
   const [rondasDisponibles, setRondasDisponibles] = useState([]);
   const [rondaSeleccionada, setRondaSeleccionada] = useState("");
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Revisar el estado de autenticación del usuario
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
+      } else {
+        setUser(null);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     const fetchRondas = async () => {
@@ -24,7 +40,6 @@ function Posiciones() {
       setRondasDisponibles(rondas);
       if (rondas.length > 0 && !rondaSeleccionada) {
         setRondaSeleccionada(`ronda${rondas[rondas.length - 1].numero}`);
-        console.log(rondaSeleccionada);
       }
     };
 
@@ -82,9 +97,9 @@ function Posiciones() {
   if (loading) {
     return (
       <div>
-        <Navbar />
-      <main className="flex justify-center items-center h-[70vh] bg-gray-900">
-            <p className="text-gray-200 font-semibold text-4xl">Cargando...</p>
+        <Navbar user={user} /> {/* Pasamos el estado de user al Navbar */}
+        <main className="flex justify-center items-center h-[70vh] bg-gray-900">
+          <p className="text-gray-200 font-semibold text-4xl">Cargando...</p>
         </main>
         <Footer />
       </div>
@@ -93,20 +108,19 @@ function Posiciones() {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
-      <Navbar />
+      <Navbar user={user} /> {/* Pasamos el estado de user al Navbar */}
 
       <div className="max-w-[1200px] mx-auto px-4 py-6">
         <h2 className="text-center font-semibold text-2xl md:text-4xl mb-4">🏆 RANKING</h2>
         <div className="flex flex-col md:flex-row md:justify-between md:items-center border-b border-gray-700 pb-4">
-
           <div className="flex flex-col md:flex-row justify-center gap-4">
             <button
               onClick={() => setModoVista("total")}
               className={`px-4 py-2 font-semibold rounded-md border transition-all duration-300 transform
               ${
                 modoVista === "total"
-                  ? "bg-yellow-600 text-gray-200 border-yellow-600 shadow-lg scale-105"
-                  : "bg-transparent text-gray-200 border border-gray-200 hover:text-yellow-400 hover:border-yellow-400 hover:shadow-md active:scale-95"
+                  ? "cursor-pointer bg-yellow-600 text-gray-200 border-yellow-600 shadow-lg scale-105"
+                  : "cursor-pointer bg-transparent text-gray-200 border border-gray-200 hover:text-yellow-400 hover:border-yellow-400 hover:shadow-md active:scale-95"
               }`}
             >
               Total
@@ -117,8 +131,8 @@ function Posiciones() {
               className={`font-semibold px-4 py-2 rounded-md border transition-all duration-300 transform
               ${
                 modoVista === "ronda"
-                  ? "bg-yellow-600 text-gray-200 border-yellow-600 shadow-lg scale-105"
-                  : "bg-transparent text-gray-200 border border-gray-200 hover:text-yellow-400 hover:border-yellow-400 hover:shadow-md active:scale-95"
+                  ? "cursor-pointer bg-yellow-600 text-gray-200 border-yellow-600 shadow-lg scale-105"
+                  : "cursor-pointer bg-transparent text-gray-200 border border-gray-200 hover:text-yellow-400 hover:border-yellow-400 hover:shadow-md active:scale-95"
               }`}
             >
               Por Ronda
@@ -272,4 +286,5 @@ function Posiciones() {
     </div>
   );
 }
+
 export default Posiciones;

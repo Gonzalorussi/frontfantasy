@@ -1,14 +1,17 @@
-import React from 'react';
-import VistaPreviaEscudo from './VistaPreviaEscudo';
+import React from "react";
+import VistaPreviaEscudo from "./VistaPreviaEscudo";
 
 export default function SeccionEquipo({ team }) {
   if (!team) return null;
 
-  const { escudoid, rellenoid, colorprimario, colorsecundario, nombreequipo } = team;
+  const { escudoid, rellenoid, colorprimario, colorsecundario, nombreequipo } =
+    team;
 
   return (
     <section className="h-60 w-44 md:h-[54vh] md:w-[220px] bg-gray-900 justify-center rounded-xl flex flex-col items-center p-4 shadow-lg">
-      <h2 className="text-center text-gray-200 text-lg font-semibold mb-4">{nombreequipo}</h2>
+      <h2 className="text-center text-gray-200 text-lg font-semibold mb-4">
+        {nombreequipo}
+      </h2>
       <div style={{ width: "140px", height: "140px" }}>
         <VistaPreviaEscudo
           escudoId={escudoid}

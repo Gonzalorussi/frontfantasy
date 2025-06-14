@@ -25,18 +25,20 @@ function Reglas() {
     <div className="min-h-screen bg-gray-900 text-white">
       <Navbar user={user} />
       <div className="max-w-[1200px] mx-auto px-4 py-6">
-        <hr className="border-1"/>
+        <hr className="border-1" />
 
         <h2 className="mt-4 text-2xl text-white text-center font-semibold">
           MSI Fantasy - Reglas
         </h2>
 
-        <hr className="mt-4 border-1"/>
-        
+        <hr className="mt-4 border-1" />
+
         <h3 className="text-white mt-6 text-2xl font-semibold">CÓMO JUGAR</h3>
 
         <section className="bg-gray-800 p-6 rounded-xl mt-6">
-          <h4 className="font-semibold text-gray-200 text-lg">CREANDO TU EQUIPO</h4>
+          <h4 className="font-semibold text-gray-200 text-lg">
+            CREANDO TU EQUIPO
+          </h4>
           <ul className="list-disc pl-6 flex flex-col gap-y-4 mt-4">
             <li>
               <p>Paea empezar, inicia sesión con tu cuenta de Google.</p>

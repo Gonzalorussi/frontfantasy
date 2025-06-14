@@ -18,14 +18,14 @@ export default function SeccionAlineacion({ roster, size = "normal" }) {
   const isLarge = size === "large";
   return (
     <section
-      className={`flex flex-col justify-center items-center min-h-[300px] bg-gray-900 p-6 rounded-2xl w-full ${
+      className={`flex border-1 flex-col justify-center items-center min-h-[300px] bg-gray-900 p-6 rounded-2xl w-full ${
         isLarge ? "max-w-[900px]" : "max-w-[700px]"
       } shadow-lg`}
     >
       <div
-        className={`mt-4 grid grid-cols-5 ${
-          isLarge ? "gap-x-6 gap-y-8" : "gap-x-4 gap-y-6"
-        }`}
+        className={`mt-4 grid ${
+          Object.keys(roster || {}).length > 0 ? "grid-cols-5" : "grid-cols-1"
+        } ${isLarge ? "gap-x-6 gap-y-8" : "gap-x-4 gap-y-6"}`}
       >
         {Object.keys(roster || {}).length > 0 ? (
           roles.map((rol) => {
@@ -70,10 +70,12 @@ export default function SeccionAlineacion({ roster, size = "normal" }) {
             );
           })
         ) : (
-          <p>
-            ⚠️ Aún no seleccionaste tu alineación. Ve al{" "}
-            <strong>Mercado</strong> para armar tu equipo.
-          </p>
+          <div className="flex text-center">
+            <p>
+              ⚠️ Aún no seleccionaste tu alineación. Ve al{" "}
+              <strong>Mercado</strong> para armar tu equipo.
+            </p>
+          </div>
         )}
       </div>
     </section>

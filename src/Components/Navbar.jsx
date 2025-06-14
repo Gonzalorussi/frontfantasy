@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { auth } from '../firebase';
-import { signOut } from 'firebase/auth';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { auth } from "../firebase";
+import { signOut } from "firebase/auth";
 
 export default function Navbar({ user }) {
   const [isOpen, setIsOpen] = useState(false); // Estado para controlar el menú en móviles
@@ -9,7 +9,7 @@ export default function Navbar({ user }) {
 
   const handleLogout = async () => {
     await signOut(auth);
-    navigate('/login');
+    navigate("/login");
   };
 
   // Función para manejar el toggle del menú
@@ -21,14 +21,13 @@ export default function Navbar({ user }) {
     <nav className="bg-gray-900 text-gray-200 p-4">
       <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
         <div className="relative flex items-center justify-between h-16">
-
           {/* Botón de hamburguesa (solo en pantallas pequeñas) */}
           <div className="flex gap-x-4 items-center sm:hidden">
             <button
               onClick={toggleMenu}
               className="inline-flex items-center justify-center p-2 rounded-md text-gray-200 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
               aria-controls="mobile-menu"
-              aria-expanded={isOpen ? 'true' : 'false'}
+              aria-expanded={isOpen ? "true" : "false"}
             >
               <span className="sr-only">Abrir menú</span>
               <svg
@@ -107,7 +106,10 @@ export default function Navbar({ user }) {
       </div>
 
       {/* Menú desplegable para pantallas pequeñas */}
-      <div className={`sm:hidden ${isOpen ? 'block' : 'hidden'}`} id="mobile-menu">
+      <div
+        className={`sm:hidden ${isOpen ? "block" : "hidden"}`}
+        id="mobile-menu"
+      >
         <div className="px-2 pt-2 pb-3 space-y-1">
           <Link
             to="/"
