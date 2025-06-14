@@ -20,21 +20,20 @@ export default function Home() {
   const { rondaActual, rondaAnterior, proximaRonda, loading: loadingRondas } = useRondaActual();
 
   useEffect(() => {
-  const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-    if (currentUser) {
-      setUser(currentUser);
-    } else {
-      navigate("/login");
-    }
-  });
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
+      } else {
+        navigate("/login");
+      }
+    });
 
-  return () => unsubscribe();
-}, [navigate]);
-
+    return () => unsubscribe();
+  }, [navigate]);
 
   useEffect(() => {
-     if (!user) return;
-     const cargarDatos = async () => {
+    if (!user) return;
+    const cargarDatos = async () => {
       setLoading(true);
       try {
         const teamRef = doc(db, "equipos", user.uid);
@@ -48,14 +47,11 @@ export default function Home() {
           setPuntosAcumulados(teamData.totalpuntos || 0);
 
           // Puntaje de última ronda terminada:
-          // Usamos rondaAnterior si existe, sino la última ronda disponible
           let numeroRondaParaPuntaje = null;
 
           if (rondaAnterior) {
             numeroRondaParaPuntaje = rondaAnterior.numero;
           } else if (!rondaActual && !rondaAnterior && proximaRonda === null) {
-            // Si no hay ronda actual ni próxima, se asume que ya terminaron todas, 
-            // tomamos la ronda con mayor número (última ronda)
             const rondasSnapshot = await getDocs(collection(db, 'rondas'));
             let maxNumero = 0;
             rondasSnapshot.forEach(doc => {
@@ -102,29 +98,29 @@ export default function Home() {
     }
   }, [user, rondaActual, rondaAnterior, proximaRonda, loadingRondas]);
 
- return (
-    <div>
+  return (
+    <div className="bg-gray-900 text-gray-200">
       <Navbar user={user} />
-      <main className="flex flex-col bg-gray-200 min-h-screen">
-        <h1 className="text-center my-4 font-semibold text-2xl text-gray-900">
+      <main className="flex flex-col min-h-screen p-6 bg-gray-800">
+        <h1 className="text-center mb-4 font-semibold text-2xl text-gray-200">
           Bienvenido, {user?.displayName}
         </h1>
 
         {loading ? (
           <div className="h-[70vh] flex justify-center items-center">
-            <p className="text-gray-900 font-semibold text-4xl">Cargando...</p>
+            <p className="text-gray-200 font-semibold text-4xl">Cargando...</p>
           </div>
         ) : (
-          <div className="flex-1 overflow-auto px-4">
+          <div className="flex-1 overflow-auto px-4 space-y-8">
             {/* Tabla de Top 3 */}
-            <div className="rounded-xl bg-gray-800 p-6 mb-6">
+            <div className="rounded-xl bg-gray-700 p-6 mb-6">
               <h2 className="text-center text-2xl font-semibold text-gray-200 mb-4">
                 TOP 3
               </h2>
               <hr className="border-t border-gray-600 mb-4" />
               <table className="w-full text-gray-200 border-collapse">
                 <thead>
-                  <tr className="bg-gray-700">
+                  <tr className="bg-gray-600">
                     <th className="px-6 py-3 border-b text-left text-lg font-medium">#</th>
                     <th className="px-6 py-3 border-b text-left text-lg font-medium">Equipo</th>
                     <th className="px-6 py-3 border-b text-left text-lg font-medium">Puntos</th>
@@ -132,7 +128,7 @@ export default function Home() {
                 </thead>
                 <tbody>
                   {topTeams.map((team, index) => (
-                    <tr key={team.id} className="bg-gray-900 hover:bg-gray-700">
+                    <tr key={team.id} className="bg-gray-800 hover:bg-gray-700 transition duration-200">
                       <td className="px-6 py-4">{index + 1}</td>
                       <td className="px-6 py-4">{team.nombreequipo}</td>
                       <td className="px-6 py-4">{team.totalpuntos}</td>
@@ -143,38 +139,34 @@ export default function Home() {
             </div>
 
             {/* Novedades */}
-            <div className="my-6">
-              <h2 className="text-center text-2xl font-semibold text-gray-900 mb-4">
-                NOVEDADES
-              </h2>
-              <div className="p-6 bg-gray-400 rounded-lg shadow-lg">
-                <ul className="space-y-3">
-                  <li className="text-lg font-medium text-gray-700 flex items-center">
-                    <span className="mr-2">📅</span> Actualización semanal en el sistema de ranking.
-                  </li>
-                  <li className="text-lg font-medium text-gray-700 flex items-center">
-                    <span className="mr-2">🔔</span> Recordá que tenés que confirmar tu Roster antes del comienzo de cada ronda.
-                  </li>
-                </ul>
+            <div className="bg-gray-700 p-6 rounded-lg">
+              <h2 className="text-center text-2xl font-semibold text-gray-200 mb-4">NOVEDADES</h2>
+              <div className="space-y-4">
+                <div className="text-lg font-medium text-gray-400 flex items-center">
+                  <span className="mr-2">📅</span> Actualización del ranking al finalizar cada ronda.
+                </div>
+                <div className="text-lg font-medium text-gray-400 flex items-center">
+                  <span className="mr-2">🔔</span> Recordá que tenés que confirmar tu Roster antes del comienzo de cada ronda.
+                </div>
               </div>
             </div>
 
             {/* Estadísticas */}
-            <p className="mt-4 text-center font-semibold text-2xl">ESTADÍSTICAS</p>
-            <div className="flex justify-between gap-x-4 my-4 flex-wrap">
-              <div className="bg-gray-400 w-full md:w-1/3 p-4 rounded-lg shadow-lg text-center">
-                <p className="text-lg font-medium text-gray-700">TU POSICIÓN</p>
-                <p className="text-2xl font-bold text-blue-600">#{posicion ?? '-'}</p>
+            <p className="mt-4 text-center font-semibold text-2xl text-gray-200">ESTADÍSTICAS</p>
+            <div className="flex justify-between gap-y-4 my-4 flex-wrap">
+              <div className="bg-gray-700 w-full md:w-80 p-4 rounded-lg shadow-lg text-center">
+                <p className="text-lg font-medium text-gray-400">TU POSICIÓN</p>
+                <p className="text-2xl font-bold text-yellow-400">#{posicion ?? '-'}</p>
               </div>
 
-              <div className="bg-gray-400 w-full md:w-1/3 p-4 rounded-lg shadow-lg text-center">
-                <p className="text-lg font-medium text-gray-700">PUNTOS ÚLTIMA RONDA</p>
-                <p className="text-2xl font-bold text-green-600">{puntosUltimaRonda.toFixed(2)}</p>
+              <div className="bg-gray-700 w-full md:w-80 p-4 rounded-lg shadow-lg text-center">
+                <p className="text-lg font-medium text-gray-400">PUNTOS ÚLTIMA RONDA</p>
+                <p className="text-2xl font-bold text-yellow-400">{puntosUltimaRonda.toFixed(2)}</p>
               </div>
 
-              <div className="bg-gray-400 w-full md:w-1/3 p-4 rounded-lg shadow-lg text-center">
-                <p className="text-lg font-medium text-gray-700">TOTAL PUNTOS</p>
-                <p className="text-2xl font-bold text-green-600">{puntosAcumulados.toFixed(2)}</p>
+              <div className="bg-gray-700 w-full md:w-80 p-4 rounded-lg shadow-lg text-center">
+                <p className="text-lg font-medium text-gray-400">TOTAL PUNTOS</p>
+                <p className="text-2xl font-bold text-yellow-400">{puntosAcumulados.toFixed(2)}</p>
               </div>
             </div>
           </div>

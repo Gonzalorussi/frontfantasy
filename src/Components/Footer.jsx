@@ -29,7 +29,7 @@
             <FaTwitch className="w-6 h-6 hover:text-red-900 transition" />
           </a>
           <a href="https://youtube.com/akofena" target="_blank" rel="noopener noreferrer" title="YouTube">
-            <FaYoutube className="w-6 h-6 hover:text-red-9000 transition" />
+            <FaYoutube className="w-6 h-6 hover:text-red-900 transition" />
           </a>
           <a href="https://twitter.com/akofena" target="_blank" rel="noopener noreferrer" title="Twitter">
             <FaTwitter className="w-6 h-6 hover:text-red-900 transition" />
