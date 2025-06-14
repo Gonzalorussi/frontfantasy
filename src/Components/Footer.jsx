@@ -25,19 +25,19 @@
         <p className="mb-2">Para Akofena</p>
 
         <div className="flex gap-4">
-          <a href="https://twitch.tv/akofena" target="_blank" rel="noopener noreferrer" title="Twitch">
+          <a href="https://www.twitch.tv/akofena_" target="_blank" rel="noopener noreferrer" title="Twitch">
             <FaTwitch className="w-6 h-6 hover:text-red-900 transition" />
           </a>
           <a href="https://youtube.com/akofena" target="_blank" rel="noopener noreferrer" title="YouTube">
             <FaYoutube className="w-6 h-6 hover:text-red-900 transition" />
           </a>
-          <a href="https://twitter.com/akofena" target="_blank" rel="noopener noreferrer" title="Twitter">
+          <a href="https://x.com/AkofenaG" target="_blank" rel="noopener noreferrer" title="Twitter">
             <FaTwitter className="w-6 h-6 hover:text-red-900 transition" />
           </a>
-          <a href="https://discord.com/akofena" target="_blank" rel="noopener noreferrer" title="Discord">
+          <a href="https://discord.com/invite/KpsSWax" target="_blank" rel="noopener noreferrer" title="Discord">
             <FaDiscord className="w-6 h-6 hover:text-red-900 transition" />
           </a>
-          <a href="https://patreon.com/akofena" target="_blank" rel="noopener noreferrer" title="Patreon">
+          <a href="https://www.patreon.com/Akofena" target="_blank" rel="noopener noreferrer" title="Patreon">
             <FaPatreon className="w-6 h-6 hover:text-red-900 transition" />
           </a>
         </div>
