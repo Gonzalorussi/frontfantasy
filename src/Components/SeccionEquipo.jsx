@@ -8,7 +8,7 @@ export default function SeccionEquipo({ team }) {
     team;
 
   return (
-    <section className="h-60 w-44 md:h-[54vh] md:w-[220px] bg-gray-900 justify-center rounded-xl flex flex-col items-center p-4 shadow-lg">
+    <section className="h-[24vh] w-[340px] md:h-[54vh] md:w-[220px] bg-gray-900 justify-center rounded-xl flex flex-col items-center p-4 shadow-lg">
       <h2 className="text-center text-gray-200 text-lg font-semibold mb-4">
         {nombreequipo}
       </h2>

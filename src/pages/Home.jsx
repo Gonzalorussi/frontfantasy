@@ -121,8 +121,8 @@ export default function Home() {
           </div>
         ) : (
           <div className="flex-1 overflow-auto px-4 space-y-8">
-            <div className="flex gap-x-4 justify-between">
-              <div className="w-1/2 rounded-xl bg-gray-700 p-6 mb-6">
+            <div className="grid md:flex gap-x-4 justify-between">
+              <div className="md:w-1/2 rounded-xl bg-gray-700 p-6 mb-6">
                 <h2 className="text-center text-2xl font-semibold text-gray-200 mb-4">
                   📅 TOP 3 FECHA
                 </h2>
@@ -157,7 +157,7 @@ export default function Home() {
               </div>
 
               {/* Tabla de Top 3 */}
-              <div className="w-1/2 rounded-xl bg-gray-700 p-6 mb-6">
+              <div className="md:w-1/2 rounded-xl bg-gray-700 p-6 mb-6">
                 <h2 className="text-center text-2xl font-semibold text-gray-200 mb-4">
                   🏆 TOP 3 RANKING
                 </h2>
@@ -192,13 +192,28 @@ export default function Home() {
               </div>
             </div>
 
-                        <div className="flex gap-x-4 justify-between">
+            <div className="flex gap-x-4 justify-between">
               <div className="w-full rounded-xl bg-gray-700 p-6 mb-6">
                 <h2 className="text-center text-2xl font-semibold text-gray-200 mb-4">
                   TOP ROSTER
                 </h2>
                 <hr className="border-t border-gray-600 mb-4" />
+              </div>
+            </div>
 
+            <div className="flex gap-x-4 justify-between">
+              <div className="w-full rounded-xl bg-gray-700 p-6 mb-6">
+                <h2 className="text-center text-2xl font-semibold text-gray-200 mb-4">
+                  JUGADOR DE LA FECHA
+                </h2>
+                <hr className="border-t border-gray-600 mb-4" />
+              </div>
+
+              <div className="w-full rounded-xl bg-gray-700 p-6 mb-6">
+                <h2 className="text-center text-2xl font-semibold text-gray-200 mb-4">
+                  JUGADOR MAS ELEGIDO
+                </h2>
+                <hr className="border-t border-gray-600 mb-4" />
               </div>
             </div>
 
@@ -207,6 +222,7 @@ export default function Home() {
               <h2 className="text-center text-2xl font-semibold text-gray-200 mb-4">
                 NOVEDADES
               </h2>
+              <hr className="border-t border-gray-600 mb-4" />
               <div className="space-y-4">
                 <div className="text-lg font-medium text-gray-400 flex items-center">
                   <span className="mr-2">⚠️</span> Actualización del ranking al
@@ -223,15 +239,15 @@ export default function Home() {
             <p className="mt-4 text-center font-semibold text-2xl text-gray-200">
               ESTADÍSTICAS
             </p>
-            <div className="flex justify-between gap-y-4 my-4 flex-wrap">
-              <div className="bg-gray-700 w-full md:w-80 p-4 rounded-lg shadow-lg text-center">
+            <div className="grid md:flex gap-x-4 justify-between gap-y-4">
+              <div className="bg-gray-700 w-[340px] md:w-1/3 p-4 rounded-lg shadow-lg text-center">
                 <p className="text-lg font-medium text-gray-400">TU POSICIÓN</p>
                 <p className="text-2xl font-bold text-yellow-400">
                   #{posicion ?? "-"}
                 </p>
               </div>
 
-              <div className="bg-gray-700 w-full md:w-80 p-4 rounded-lg shadow-lg text-center">
+              <div className="bg-gray-700 w-[340px] md:w-1/3 p-4 rounded-lg shadow-lg text-center">
                 <p className="text-lg font-medium text-gray-400">
                   PUNTOS ÚLTIMA RONDA
                 </p>
@@ -240,7 +256,7 @@ export default function Home() {
                 </p>
               </div>
 
-              <div className="bg-gray-700 w-full md:w-80 p-4 rounded-lg shadow-lg text-center">
+              <div className="bg-gray-700 w-[340px] md:w-1/3 p-4 rounded-lg shadow-lg text-center">
                 <p className="text-lg font-medium text-gray-400">
                   TOTAL PUNTOS
                 </p>
