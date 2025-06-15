@@ -125,7 +125,7 @@ if (loading || rondaLoading) {
         </div>
       ) : (
         <>
-          <div className="text-center my-4 text-lg text-gray-200 font-semibold">
+          <div className="bg-gray-900 text-center flex mx-auto px-4 rounded-sm justify-center mt-10 text-lg text-gray-200 font-semibold">
             {textoEstadoRonda}
           </div>
           <div className="md:my-auto flex flex-col gap-y-4 md:flex md:flex-row justify-center gap-x-4 mx-auto">

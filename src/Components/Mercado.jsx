@@ -241,7 +241,7 @@ function Mercado() {
             <SeccionAlineacion roster={alineacion} mostrarAviso={false}/>
           </div>
 
-          <div className="w-full sm:w-auto mt-4 sm:mt-0">
+          <div className="w-full sm:w-auto my-4 sm:mt-0">
             <button
               onClick={confirmarRoster}
               disabled={
@@ -249,7 +249,7 @@ function Mercado() {
               }
               className={`px-6 py-3 rounded-lg font-semibold text-white transition-colors w-full sm:w-auto ${
                 Object.keys(alineacion).length === 5 && edicionHabilitada
-                  ? "bg-green-600 hover:bg-green-700 cursor-pointer"
+                  ? "bg-red-800 hover:bg-red-700 cursor-pointer"
                   : "bg-gray-600 cursor-not-allowed"
               }`}
             >

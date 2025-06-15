@@ -25,12 +25,12 @@ export default function SeccionAlineacion({ roster, size = "normal", mostrarAvis
 
   return (
     <section
-      className={`flex border-1 flex-col justify-center items-center min-h-[300px] bg-gray-900 p-6 rounded-2xl w-full ${
+      className={`flex flex-col justify-center items-center min-h-[300px] bg-gray-900 p-6 rounded-2xl w-full ${
         isLarge ? "max-w-[900px]" : "max-w-[700px]"
       } shadow-lg`}
     >
       <div
-        className={`mt-4 grid grid-cols-5 ${
+        className={`grid grid-cols-5 ${
           isLarge ? "gap-x-6 gap-y-8" : "gap-x-4 gap-y-6"
         }`}
       >

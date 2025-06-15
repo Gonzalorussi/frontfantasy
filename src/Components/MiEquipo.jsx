@@ -146,7 +146,7 @@ useEffect(() => {
       <div className="flex flex-col md:flex-row justify-center items-center mb-10 gap-10">
 
   <div className="flex items-center gap-4">
-    <label className="text-gray-200 text-xl font-semibold">Nombre de tu equipo:</label>
+    <label className="text-gray-200 text-xl font-semibold">Equipo:</label>
     <input
       type="text"
       placeholder="Nombre del equipo"
@@ -173,7 +173,7 @@ useEffect(() => {
 
       <h3 className="text-gray-200 text-2xl font-semibold mb-4 text-center">Elegí un escudo:</h3>
       <div className="relative flex items-center justify-center mb-4">
-        <button onClick={handlePrevShields} className="absolute left-0 z-10 text-3xl text-white p-2">
+        <button onClick={handlePrevShields} className="cursor-pointer absolute left-0 z-10 text-3xl text-white p-2">
           <FiChevronLeft />
         </button>
 
@@ -182,16 +182,16 @@ useEffect(() => {
             style={{ transform: `translateX(-${shieldScrollIndex * (ITEM_WIDTH + GAP)}px)` }}>
             {repeatedShields.map(({ id, Componente }, index) => (
               <button key={`${id}-${index}`} onClick={() => setSelectedShield(id)}
-                className={`p-2 border-2 rounded snap-start ${selectedShield === id ? "border-blue-500" : ""}`}
+                className={`cursor-pointer p-2 border-2 rounded snap-start ${selectedShield === id ? "border-blue-500" : ""}`}
                 style={{ width: `${ITEM_WIDTH}px` }}>
                 <Componente className="w-32 h-32"
-                  style={{ color: selectedShield === id ? primaryColor : "#333" }} />
+                  style={{ color: selectedShield === id ? primaryColor : "#fff" }} />
               </button>
             ))}
           </div>
         </div>
 
-        <button onClick={handleNextShields} className="absolute right-0 z-10 text-3xl text-white p-2">
+        <button onClick={handleNextShields} className="cursor-pointer absolute right-0 z-10 text-3xl text-white p-2">
           <FiChevronRight />
         </button>
       </div>
@@ -199,7 +199,7 @@ useEffect(() => {
       <div className="flex justify-center gap-2 mb-10">
         {colores.map((color) => (
           <button key={color} onClick={() => setPrimaryColor(color)}
-            className="w-10 h-10 rounded-full"
+            className="cursor-pointer w-10 h-10 rounded-full"
             style={{
               backgroundColor: color,
               border: primaryColor === color
@@ -212,7 +212,7 @@ useEffect(() => {
 
       <h3 className="text-gray-200 text-2xl font-semibold mb-4 text-center">Elegí un ícono:</h3>
       <div className="relative flex items-center justify-center mb-4">
-        <button onClick={handlePrevFills} className="absolute left-0 z-10 text-3xl text-white p-2">
+        <button onClick={handlePrevFills} className="cursor-pointer absolute left-0 z-10 text-3xl text-white p-2">
           <FiChevronLeft />
         </button>
 
@@ -221,16 +221,16 @@ useEffect(() => {
             style={{ transform: `translateX(-${fillScrollIndex * (ITEM_WIDTH + GAP)}px)` }}>
             {repeatedFills.map(({ id, Componente }, index) => (
               <button key={`${id}-${index}`} onClick={() => setSelectedFill(id)}
-                className={`p-2 border-2 rounded snap-start ${selectedFill === id ? "border-blue-500" : ""}`}
+                className={`cursor-pointer p-2 border-2 rounded snap-start ${selectedFill === id ? "border-blue-500" : ""}`}
                 style={{ width: `${ITEM_WIDTH}px` }}>
                 <Componente className="w-32 h-32"
-                  style={{ color: selectedFill === id ? secondaryColor : "#333" }} />
+                  style={{ color: selectedFill === id ? secondaryColor : "#fff" }} />
               </button>
             ))}
           </div>
         </div>
 
-        <button onClick={handleNextFills} className="absolute right-0 z-10 text-3xl text-white p-2">
+        <button onClick={handleNextFills} className="cursor-pointer absolute right-0 z-10 text-3xl text-white p-2">
           <FiChevronRight />
         </button>
       </div>
@@ -238,7 +238,7 @@ useEffect(() => {
       <div className="flex justify-center gap-2 mb-10">
         {colores.map((color) => (
           <button key={color} onClick={() => setSecondaryColor(color)}
-            className="w-10 h-10 rounded-full"
+            className="cursor-pointer w-10 h-10 rounded-full"
             style={{
               backgroundColor: color,
               border: secondaryColor === color
