@@ -55,17 +55,17 @@ export default function Equipo() {
             .sort((a, b) => b - a);
 
           if (rondasConfirmadas.length > 0) {
-            setRoster(rosterData[`ronda${rondasConfirmadas[0]}`]);
+            setRoster(rosterData[`ronda${rondasConfirmadas[0]}`]|| {});
           }else {
-            setRoster(null);
+            setRoster({});
           }
         }
       }else {
-        setRoster(null);
+        setRoster({});
       }
     }catch (err) {
       console.error(err);
-      setRoster(null);
+      setRoster({});
     }finally {
       setLoading(false);
     }
@@ -130,13 +130,7 @@ if (loading || rondaLoading) {
           </div>
           <div className="md:my-auto flex flex-col gap-y-4 md:flex md:flex-row justify-center gap-x-4 mx-auto">
             <SeccionEquipo team={team} />
-            {roster ? (
-              <SeccionAlineacion roster={roster} size="large" />
-            ) : (
-              <div className="text-center text-gray-400 p-4">
-                No tenés alineación confirmada para esta ronda.
-              </div>
-            )}
+            <SeccionAlineacion roster={roster} size="large" />
           </div>
         </>
       )}

@@ -19,6 +19,8 @@ import jungle from "../assets/iconos/jungle.svg?react";
 import mid from "../assets/iconos/mid.svg?react";
 import bottom from "../assets/iconos/bottom.svg?react";
 import support from "../assets/iconos/support.svg?react";
+import { DateTime } from "luxon";
+import useRondaActual from "../hooks/useRondaActual";
 
 const roles = ["top", "jungle", "mid", "bottom", "support"];
 const iconosRoles = {
@@ -36,11 +38,12 @@ function Mercado() {
   const [alineacion, setAlineacion] = useState({});
   const [presupuesto, setPresupuesto] = useState(50);
   const [usuarioId, setUsuarioId] = useState(null);
-  const [rondaActual, setRondaActual] = useState(null);
-  const [rondaProxima, setRondaProxima] = useState(null);
   const [edicionHabilitada, setEdicionHabilitada] = useState(false);
   const [user, setUser] = useState(null); // Estado para el usuario
   const [cargando, setCargando] = useState(true); // Estado de carga
+
+  const db = getFirestore();
+  const { rondaActual, proximaRonda, loading: loadingRondas } = useRondaActual();
 
   useEffect(() => {
     const auth = getAuth();
@@ -110,72 +113,47 @@ function Mercado() {
   }, []);
 
   useEffect(() => {
-    async function obtenerRondasYRoster() {
-      if (!usuarioId) return;
-      const db = getFirestore();
-      const snapshot = await getDocs(collection(db, "rondas"));
-      const data = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-        fechainicio: doc.data().fechainicio.toDate(),
-        fechafin: doc.data().fechafin.toDate(),
-        numero: doc.data().numero,
-      }));
+    if (!loadingRondas) {
+      const ahora = DateTime.now().setZone("America/Argentina/Buenos_Aires");
 
-      const ahora = new Date();
-      const actual = data.find(
-        (r) => ahora >= r.fechainicio && ahora <= r.fechafin
-      );
-      const proxima = data
-        .filter((r) => ahora < r.fechainicio)
-        .sort((a, b) => a.fechainicio - b.fechainicio)[0];
+      const puedeEditar =
+        !rondaActual &&
+        proximaRonda &&
+        proximaRonda.Fechainicio.diff(ahora, "hours").hours >= 1;
 
-      setRondaActual(actual || null);
-      setRondaProxima(proxima || null);
+      setEdicionHabilitada(puedeEditar);
+    }
+  }, [rondaActual, proximaRonda, loadingRondas]);
+
+  useEffect(() => {
+    if (!usuarioId || loadingRondas) return;
+
+    async function obtenerRoster() {
+      const rosterRef = doc(db, "rosters", usuarioId);
+      const snapshot = await getDoc(rosterRef);
+      if (!snapshot.exists()) return;
 
       let campoRonda = null;
 
-      if (actual) campoRonda = `ronda${actual.numero}`;
-      else if (proxima) {
-        campoRonda = `ronda${proxima.numero}`;
-        const rosterRef = doc(db, "rosters", usuarioId);
-        const snapshotRoster = await getDoc(rosterRef);
-        if (snapshotRoster.exists()) {
-          const data = snapshotRoster.data();
-          if (!data[campoRonda]) {
-            const rondasPrevias =
-              data &&
-              Object.keys(data)
-                .filter((k) => k.startsWith("ronda"))
-                .sort()
-                .reverse();
-            campoRonda = rondasPrevias.length > 0 ? rondasPrevias[0] : null;
-          }
-        }
+      if (rondaActual) {
+        campoRonda = `ronda${rondaActual.numero}`;
+      } else if (proximaRonda) {
+        campoRonda = `ronda${proximaRonda.numero}`;
       }
 
-      if (!campoRonda) return;
+      const data = snapshot.data();
+      const rosterData = data[campoRonda] || {};
 
-      const rosterRef = doc(db, "rosters", usuarioId);
-      const snapshotRoster = await getDoc(rosterRef);
-      if (!snapshotRoster.exists()) return;
+      setAlineacion(rosterData);
 
-      const rosterData = snapshotRoster.data()[campoRonda];
-      setAlineacion(rosterData || {});
-
-      const presupuestoUsado = Object.values(rosterData || {}).reduce(
-        (sum, j) => sum + (j?.valor || 0),
-        0
+      const presupuestoUsado = Object.values(rosterData).reduce(
+        (sum, j) => sum + (j?.valor || 0), 0
       );
       setPresupuesto(50 - presupuestoUsado);
-
-      const puedeEditar =
-        !actual && proxima && proxima.fechainicio - ahora >= 60 * 60 * 1000;
-      setEdicionHabilitada(puedeEditar);
     }
 
-    obtenerRondasYRoster();
-  }, [usuarioId]);
+    obtenerRoster();
+  }, [usuarioId, rondaActual, proximaRonda, loadingRondas, db]);
 
   const seleccionarJugador = (jugador) => {
     if (!edicionHabilitada) return;
@@ -203,14 +181,13 @@ function Mercado() {
       !usuarioId ||
       Object.keys(alineacion).length !== 5 ||
       !edicionHabilitada ||
-      !rondaProxima
+      !proximaRonda
     )
       return;
 
-    const db = getFirestore();
     const rosterRef = doc(db, "rosters", usuarioId);
     const snapshot = await getDoc(rosterRef);
-    const campoRonda = `ronda${rondaProxima.numero}`;
+    const campoRonda = `ronda${proximaRonda.numero}`;
 
     const nuevoRoster = {
       [campoRonda]: alineacion,
@@ -238,10 +215,10 @@ function Mercado() {
     });
   };
 
-  if (cargando) {
+  if (cargando || loadingRondas) {
     return (
       <div>
-        <Navbar user={user} /> {/* Pasamos el estado de user al Navbar */}
+        <Navbar user={user} />
         <main className="flex justify-center items-center h-[70vh] bg-gray-900">
           <p className="text-gray-200 font-semibold text-4xl">Cargando...</p>
         </main>
@@ -252,23 +229,18 @@ function Mercado() {
 
   return (
     <div className="bg-gray-900 min-h-screen text-gray-200">
-      <Navbar user={user} /> {/* Pasamos el usuario al Navbar */}
-      {/* Contenedor central de 1200px */}
+      <Navbar user={user} />
       <div className="max-w-[1400px] mx-auto p-4 flex flex-col gap-4">
-        {/* Bloque presupuesto + alineación + confirmar */}
         <div className="md:sticky top-0 z-10 bg-gray-800 rounded p-4 flex flex-col items-center gap-6">
-          {/* Presupuesto */}
           <div className="text-center w-containter bg-gray-700 rounded text-xl font-semibold p-2">
             Presupuesto restante:💰{" "}
             <span className="text-yellow-400">{presupuesto}</span>
           </div>
 
-          {/* Alineación */}
           <div className="flex-grow mx-4 overflow-x-auto">
-            <SeccionAlineacion roster={alineacion} />
+            <SeccionAlineacion roster={alineacion} mostrarAviso={false}/>
           </div>
 
-          {/* Confirmar */}
           <div className="w-full sm:w-auto mt-4 sm:mt-0">
             <button
               onClick={confirmarRoster}
@@ -277,7 +249,7 @@ function Mercado() {
               }
               className={`px-6 py-3 rounded-lg font-semibold text-white transition-colors w-full sm:w-auto ${
                 Object.keys(alineacion).length === 5 && edicionHabilitada
-                  ? "bg-green-600 hover:bg-green-700"
+                  ? "bg-green-600 hover:bg-green-700 cursor-pointer"
                   : "bg-gray-600 cursor-not-allowed"
               }`}
             >
@@ -286,11 +258,8 @@ function Mercado() {
           </div>
         </div>
 
-        {/* Nuevo contenedor flex para búsqueda + lista */}
         <div className="flex gap-6 flex-col sm:flex-row">
-          {/* Barra búsqueda izquierda */}
           <div className="flex flex-col w-full sm:w-[320px] rounded p-4 md:sticky top-[calc(64px+1rem)] self-start mb-4 sm:mb-0">
-            {/* input búsqueda */}
             <div className="relative mb-4">
               <input
                 type="text"
@@ -302,7 +271,6 @@ function Mercado() {
               <FaSearch className="absolute left-3 top-2.5 text-gray-400" />
             </div>
 
-            {/* Botones filtro roles */}
             <div className="flex flex-wrap gap-2 justify-center">
               {roles.map((rol) => {
                 const Icono = iconosRoles[rol];
@@ -324,7 +292,6 @@ function Mercado() {
             </div>
           </div>
 
-          {/* Lista de jugadores derecha */}
           <div className="flex-grow max-h-[calc(100vh-150px)] overflow-y-auto scrollbar-thin scrollbar-thumb-blue-600 scrollbar-track-gray-700 bg-gray-800 rounded p-4">
             {filtrarJugadores().map((jugador) => {
               const enRol = alineacion[jugador.rol];
