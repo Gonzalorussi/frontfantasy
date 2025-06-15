@@ -6,6 +6,7 @@ import Navbar from "../Components/Navbar";
 import Footer from "../Components/Footer";
 import { useNavigate } from "react-router-dom";
 import useRondaActual from "../hooks/useRondaActual";
+import {FaRegCalendarAlt, FaTrophy  } from "react-icons/fa"
 
 export default function Home() {
   const [user, setUser] = useState(null);
@@ -108,10 +109,12 @@ export default function Home() {
   }, [user, rondaActual, rondaAnterior, proximaRonda, loadingRondas]);
 
   return (
-    <div className="bg-gray-900 text-gray-200">
+    <div className="bg-gray-900 text-gray-200 min-h-screen flex flex-col">
       <Navbar user={user} />
-      <main className="flex flex-col min-h-screen p-6 bg-gray-800">
-        <h1 className="text-center mb-4 font-semibold text-2xl text-gray-200">
+
+      <main className="flex flex-col flex-1 py-6 bg-gray-800">
+        <div className="max-w-[1200px] mx-auto w-full">
+        <h1 className="text-center mb-6 font-semibold text-2xl">
           Bienvenido, {user?.displayName}
         </h1>
 
@@ -120,25 +123,38 @@ export default function Home() {
             <p className="text-gray-200 font-semibold text-4xl">Cargando...</p>
           </div>
         ) : (
-          <div className="flex-1 overflow-auto px-4 space-y-8">
-            <div className="grid md:flex gap-x-4 justify-between">
-              <div className="md:w-1/2 rounded-xl bg-gray-700 p-6 mb-6">
-                <h2 className="text-center text-2xl font-semibold text-gray-200 mb-4">
-                  📅 TOP 3 FECHA
+          <div className="flex flex-col space-y-8 overflow-auto px-4">
+
+            <div className="flex flex-col md:flex-row md:justify-between gap-6">
+        <div className="bg-gray-700 w-full md:w-[340px] p-4 rounded-lg shadow-lg text-center">
+          <p className="text-lg font-medium text-gray-400">TU POSICIÓN</p>
+          <p className="text-2xl font-bold text-yellow-400">#{posicion ?? "-"}</p>
+        </div>
+
+        <div className="bg-gray-700 w-full md:w-[340px] p-4 rounded-lg shadow-lg text-center">
+          <p className="text-lg font-medium text-gray-400">PUNTOS ÚLTIMA RONDA</p>
+          <p className="text-2xl font-bold text-yellow-400">{puntosUltimaRonda.toFixed(2)}</p>
+        </div>
+
+        <div className="bg-gray-700 w-full md:w-[340px] p-4 rounded-lg shadow-lg text-center">
+          <p className="text-lg font-medium text-gray-400">TOTAL PUNTOS</p>
+          <p className="text-2xl font-bold text-yellow-400">{puntosAcumulados.toFixed(2)}</p>
+        </div>
+      </div>
+            {/* Top 3 Fecha y Ranking */}
+            <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-6">
+              <div className="w-full md:w-1/2 rounded-xl bg-gray-700 p-6">
+                <h2 className="flex items-center justify-center gap-2 text-2xl font-semibold mb-4">
+                  <FaRegCalendarAlt className="w-6 h-6 text-yellow-400" />
+                  TOP 3 FECHA
                 </h2>
                 <hr className="border-t border-gray-600 mb-4" />
                 <table className="w-full text-gray-200 border-collapse">
                   <thead>
                     <tr className="bg-gray-600">
-                      <th className="px-6 py-3 border-b text-left text-lg font-medium">
-                        #
-                      </th>
-                      <th className="px-6 py-3 border-b text-left text-lg font-medium">
-                        Equipo
-                      </th>
-                      <th className="px-6 py-3 border-b text-left text-lg font-medium">
-                        Puntos
-                      </th>
+                      <th className="px-6 py-3 border-b text-left text-lg font-medium">#</th>
+                      <th className="px-6 py-3 border-b text-left text-lg font-medium">Equipo</th>
+                      <th className="px-6 py-3 border-b text-left text-lg font-medium">Puntos</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -156,24 +172,18 @@ export default function Home() {
                 </table>
               </div>
 
-              {/* Tabla de Top 3 */}
-              <div className="md:w-1/2 rounded-xl bg-gray-700 p-6 mb-6">
-                <h2 className="text-center text-2xl font-semibold text-gray-200 mb-4">
-                  🏆 TOP 3 RANKING
+              <div className="w-full md:w-1/2 rounded-xl bg-gray-700 p-6">
+                <h2 className="flex items-center justify-center gap-2 text-2xl font-semibold mb-4">
+                  <FaTrophy className="w-6 h-6 text-yellow-400" />
+                  TOP 3 RANKING
                 </h2>
                 <hr className="border-t border-gray-600 mb-4" />
                 <table className="w-full text-gray-200 border-collapse">
                   <thead>
                     <tr className="bg-gray-600">
-                      <th className="px-6 py-3 border-b text-left text-lg font-medium">
-                        #
-                      </th>
-                      <th className="px-6 py-3 border-b text-left text-lg font-medium">
-                        Equipo
-                      </th>
-                      <th className="px-6 py-3 border-b text-left text-lg font-medium">
-                        Puntos
-                      </th>
+                      <th className="px-6 py-3 border-b text-left text-lg font-medium">#</th>
+                      <th className="px-6 py-3 border-b text-left text-lg font-medium">Equipo</th>
+                      <th className="px-6 py-3 border-b text-left text-lg font-medium">Puntos</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -192,81 +202,43 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="flex gap-x-4 justify-between">
-              <div className="w-full rounded-xl bg-gray-700 p-6 mb-6">
-                <h2 className="text-center text-2xl font-semibold text-gray-200 mb-4">
-                  TOP ROSTER
-                </h2>
-                <hr className="border-t border-gray-600 mb-4" />
-              </div>
+            {/* Top Roster */}
+            <div className="w-full rounded-xl bg-gray-700 p-6">
+              <h2 className="text-center text-2xl font-semibold mb-4">TOP ROSTER</h2>
+              <hr className="border-t border-gray-600 mb-4" />
+              {/* Aquí iría el contenido del TOP ROSTER */}
             </div>
 
-            <div className="flex gap-x-4 justify-between">
-              <div className="w-full rounded-xl bg-gray-700 p-6 mb-6">
-                <h2 className="text-center text-2xl font-semibold text-gray-200 mb-4">
-                  JUGADOR DE LA FECHA
-                </h2>
+            {/* Jugadores de la fecha y más elegido */}
+            <div className="flex flex-col md:flex-row gap-6">
+              <div className="w-full md:w-1/2 rounded-xl bg-gray-700 p-6">
+                <h2 className="text-center text-2xl font-semibold mb-4">JUGADOR DE LA FECHA</h2>
                 <hr className="border-t border-gray-600 mb-4" />
+                {/* Aquí contenido jugador de la fecha */}
               </div>
-
-              <div className="w-full rounded-xl bg-gray-700 p-6 mb-6">
-                <h2 className="text-center text-2xl font-semibold text-gray-200 mb-4">
-                  JUGADOR MAS ELEGIDO
-                </h2>
+              <div className="w-full md:w-1/2 rounded-xl bg-gray-700 p-6">
+                <h2 className="text-center text-2xl font-semibold mb-4">JUGADOR MAS ELEGIDO</h2>
                 <hr className="border-t border-gray-600 mb-4" />
+                {/* Aquí contenido jugador más elegido */}
               </div>
             </div>
 
             {/* Novedades */}
             <div className="bg-gray-700 p-6 rounded-lg">
-              <h2 className="text-center text-2xl font-semibold text-gray-200 mb-4">
-                NOVEDADES
-              </h2>
+              <h2 className="text-center text-2xl font-semibold mb-4">NOVEDADES</h2>
               <hr className="border-t border-gray-600 mb-4" />
               <div className="space-y-4">
                 <div className="text-lg font-medium text-gray-400 flex items-center">
-                  <span className="mr-2">⚠️</span> Actualización del ranking al
-                  finalizar cada ronda.
+                  <span className="mr-2">⚠️</span> Actualización del ranking al finalizar cada ronda.
                 </div>
                 <div className="text-lg font-medium text-gray-400 flex items-center">
-                  <span className="mr-2">🔔</span> Recordá que tenés que
-                  confirmar tu Roster antes del comienzo de cada ronda.
+                  <span className="mr-2">🔔</span> Recordá que tenés que confirmar tu Roster antes del comienzo de cada ronda.
                 </div>
-              </div>
-            </div>
-
-            {/* Estadísticas */}
-            <p className="mt-4 text-center font-semibold text-2xl text-gray-200">
-              ESTADÍSTICAS
-            </p>
-            <div className="grid md:flex gap-x-4 justify-between gap-y-4">
-              <div className="bg-gray-700 w-[340px] md:w-1/3 p-4 rounded-lg shadow-lg text-center">
-                <p className="text-lg font-medium text-gray-400">TU POSICIÓN</p>
-                <p className="text-2xl font-bold text-yellow-400">
-                  #{posicion ?? "-"}
-                </p>
-              </div>
-
-              <div className="bg-gray-700 w-[340px] md:w-1/3 p-4 rounded-lg shadow-lg text-center">
-                <p className="text-lg font-medium text-gray-400">
-                  PUNTOS ÚLTIMA RONDA
-                </p>
-                <p className="text-2xl font-bold text-yellow-400">
-                  {puntosUltimaRonda.toFixed(2)}
-                </p>
-              </div>
-
-              <div className="bg-gray-700 w-[340px] md:w-1/3 p-4 rounded-lg shadow-lg text-center">
-                <p className="text-lg font-medium text-gray-400">
-                  TOTAL PUNTOS
-                </p>
-                <p className="text-2xl font-bold text-yellow-400">
-                  {puntosAcumulados.toFixed(2)}
-                </p>
               </div>
             </div>
           </div>
         )}
+        </div>
       </main>
 
       <Footer />

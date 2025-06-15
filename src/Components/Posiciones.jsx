@@ -7,7 +7,8 @@ import VistaPreviaEscudo from "./VistaPreviaEscudo";
 import { Listbox, Transition } from "@headlessui/react";
 import { FaChevronDown } from "react-icons/fa";
 import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "../firebase"; // Asumiendo que tienes la configuración de Firebase en este archivo
+import { auth } from "../firebase";
+import { FaTrophy  } from "react-icons/fa"
 
 function Posiciones() {
   const [user, setUser] = useState(null); // Estado para el usuario
@@ -111,7 +112,7 @@ function Posiciones() {
       <Navbar user={user} /> {/* Pasamos el estado de user al Navbar */}
 
       <div className="max-w-[1200px] mx-auto px-4 py-6">
-        <h2 className="text-center font-semibold text-2xl md:text-4xl mb-4">🏆 RANKING</h2>
+        <h2 className="flex items-center justify-center gap-2 text-center font-semibold text-2xl md:text-4xl mb-4"> <FaTrophy className="w-6 h-6 text-yellow-400" />RANKING</h2>
         <div className="flex flex-col md:flex-row md:justify-between md:items-center border-b border-gray-700 pb-4">
           <div className="flex flex-col md:flex-row justify-center gap-4">
             <button

@@ -18,8 +18,8 @@ export default function Navbar({ user }) {
   };
 
   return (
-    <nav className="bg-gray-900 text-gray-200 p-4">
-      <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
+    <nav className="bg-gray-900 text-gray-200 px-0 py-4">
+      <div className="max-w-[1200px] mx-auto w-full">
         <div className="relative flex items-center justify-between h-16">
           {/* Botón de hamburguesa (solo en pantallas pequeñas) */}
           <div className="flex gap-x-4 items-center sm:hidden">
