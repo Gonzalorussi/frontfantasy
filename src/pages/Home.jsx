@@ -7,6 +7,7 @@ import Footer from "../Components/Footer";
 import { useNavigate } from "react-router-dom";
 import useRondaActual from "../hooks/useRondaActual";
 import {FaRegCalendarAlt, FaTrophy  } from "react-icons/fa"
+import TopRosterCard from "../Components/TopRosterCard"; 
 
 export default function Home() {
   const [user, setUser] = useState(null);
@@ -15,7 +16,11 @@ export default function Home() {
   const [posicion, setPosicion] = useState(null);
   const [puntosUltimaRonda, setPuntosUltimaRonda] = useState(0);
   const [puntosAcumulados, setPuntosAcumulados] = useState(0);
+  const [topRoster, setTopRoster] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [topPromedios, setTopPromedios] = useState([]);
+  const [topPickeados, setTopPickeados] = useState([]);
+  const [loadingStats, setLoadingStats] = useState(true);
   const navigate = useNavigate();
 
   const {
@@ -107,6 +112,120 @@ export default function Home() {
       cargarDatos();
     }
   }, [user, rondaActual, rondaAnterior, proximaRonda, loadingRondas]);
+
+  useEffect(() => {
+  const cargarTopRoster = async () => {
+    if (!rondaAnterior) return;
+    try {
+      const jugadoresSnapshot = await getDocs(collection(db, "jugadores"));
+      const jugadores = jugadoresSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+      const roles = ["top", "jungle", "mid", "bottom", "support"];
+      const topPorRol = roles.map(rol => {
+        const jugadoresDelRol = jugadores.filter(j => j.rol === rol);
+        let mejor = null;
+        let mejorPuntaje = -Infinity;
+
+        for (const jugador of jugadoresDelRol) {
+          const puntaje = jugador.puntajeronda?.[`ronda${rondaAnterior.numero}`] ?? 0;
+          if (puntaje > mejorPuntaje) {
+            mejor = { ...jugador, puntaje };
+            mejorPuntaje = puntaje;
+          }
+        }
+        return mejor;
+      }).filter(j => j); // filtramos posibles null
+
+      setTopRoster(topPorRol);
+    } catch (error) {
+      console.error("Error al cargar Top Roster:", error);
+    }
+  };
+
+  cargarTopRoster();
+}, [rondaAnterior]);
+
+  useEffect(() => {
+    const cargarEstadisticas = async () => {
+      if (!rondaAnterior) {
+        setLoadingStats(false);
+       return;
+      }
+
+      try { const jugadoresSnapshot = await getDocs(collection(db, "jugadores"));
+        const jugadoresList = jugadoresSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        const promedios = jugadoresList.map(jugador => {
+        const puntajesRonda = jugador.puntajeronda || {};
+        const puntajesValidos = Object.values(puntajesRonda).filter(p => p > 0);
+        const totalPuntos = puntajesValidos.reduce((acc, val) => acc + val, 0);
+        const cantidadJugadas = puntajesValidos.length;
+        const promedio = cantidadJugadas > 0 ? totalPuntos / cantidadJugadas : 0;
+        return {
+          id: jugador.id,
+          nombre: jugador.nombre,
+          club: jugador.club,
+          rol: jugador.rol,
+          valor: jugador.valor,
+          promedio: promedio.toFixed(2),
+          };
+        });
+
+        promedios.sort((a, b) => {
+          if (b.promedio !== a.promedio) {
+            return b.promedio - a.promedio;
+          }
+          return a.valor - b.valor;
+        });
+
+        setTopPromedios(promedios.slice(0, 5));
+
+        const rostersSnapshot = await getDocs(collection(db, "rosters"));
+        const conteo = {};
+
+        rostersSnapshot.forEach(doc => {
+  const data = doc.data();
+  Object.keys(data).forEach(campo => {
+    if (campo.startsWith("ronda")) {
+      const numeroRonda = parseInt(campo.replace("ronda", ""), 10);
+      if (numeroRonda <= rondaAnterior.numero) {
+        const ronda = data[campo];
+        ["top", "mid", "jungle", "botton", "support"].forEach(posicion => {
+          const jugadorObj = ronda[posicion];
+          const jugadorId = jugadorObj?.id;
+          if (jugadorId) {
+            conteo[jugadorId] = (conteo[jugadorId] || 0) + 1;
+          }
+        });
+      }
+    }
+  });
+});
+        const pickeados = Object.entries(conteo).map(([id, cantidad]) => {
+          const jugador = jugadoresList.find(j => j.id === id);
+          return {
+            id,
+            nombre: jugador?.nombre || "Desconocido",
+            club: jugador?.club || "-",
+            rol: jugador?.rol || "-",
+            valor: jugador?.valor || 0,
+            cantidad
+          };
+        });
+
+        pickeados.sort((a, b) => b.cantidad - a.cantidad);
+        setTopPickeados(pickeados.slice(0, 5));
+      } catch (err) {
+        console.error("Error al cargar estadísticas:", err);
+        } finally {
+        setLoadingStats(false);
+      }
+    };
+
+    cargarEstadisticas();
+  }, [rondaAnterior]);
 
   return (
     <div className="bg-gray-900 text-gray-200 min-h-screen flex flex-col">
@@ -206,22 +325,81 @@ export default function Home() {
             <div className="w-full rounded-xl bg-gray-700 p-6">
               <h2 className="text-center text-2xl font-semibold mb-4">TOP ROSTER</h2>
               <hr className="border-t border-gray-600 mb-4" />
-              {/* Aquí iría el contenido del TOP ROSTER */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                {topRoster.map((jugador) => (
+                <TopRosterCard key={jugador.id} jugador={jugador} />
+                ))}
+              </div>
             </div>
 
-            {/* Jugadores de la fecha y más elegido */}
-            <div className="flex flex-col md:flex-row gap-6">
-              <div className="w-full md:w-1/2 rounded-xl bg-gray-700 p-6">
-                <h2 className="text-center text-2xl font-semibold mb-4">JUGADOR DE LA FECHA</h2>
-                <hr className="border-t border-gray-600 mb-4" />
-                {/* Aquí contenido jugador de la fecha */}
-              </div>
-              <div className="w-full md:w-1/2 rounded-xl bg-gray-700 p-6">
-                <h2 className="text-center text-2xl font-semibold mb-4">JUGADOR MAS ELEGIDO</h2>
-                <hr className="border-t border-gray-600 mb-4" />
-                {/* Aquí contenido jugador más elegido */}
-              </div>
+            {/* TOP 5 PROMEDIOS */}
+            <div className="w-full rounded-xl bg-gray-700 p-6">
+              <h2 className="text-center text-2xl font-semibold mb-4">TOP 5 PROMEDIO DEL TORNEO</h2>
+              <hr className="border-t border-gray-600 mb-4" />
+              {loadingStats ? (
+                <p className="text-center text-xl">Cargando estadísticas...</p>
+              ) : (
+                <table className="w-full text-gray-200 border-collapse">
+                  <thead className="bg-gray-600">
+                    <tr>
+                      <th className="px-4 py-2">#</th>
+                      <th className="px-4 py-2">Nombre</th>
+                      <th className="px-4 py-2">Club</th>
+                      <th className="px-4 py-2">Rol</th>
+                      <th className="px-4 py-2">Valor</th>
+                      <th className="px-4 py-2">Promedio</th>
+                    </tr>
+                 </thead>
+                  <tbody>
+                    {topPromedios.map((jugador, index) => (
+                      <tr key={jugador.id} className="bg-gray-800 hover:bg-gray-700 transition duration-200">
+                        <td className="px-4 py-2 text-center">{index + 1}</td>
+                        <td className="px-4 py-2 text-center">{jugador.nombre}</td>
+                        <td className="px-4 py-2 text-center">{jugador.club}</td>
+                        <td className="px-4 py-2 text-center">{jugador.rol}</td>
+                        <td className="px-4 py-2 text-center">{jugador.valor}</td>
+                        <td className="px-4 py-2 text-center">{jugador.promedio}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
+
+            {/* TOP 5 MAS PICKEADOS */}
+            <div className="w-full rounded-xl bg-gray-700 p-6">
+              <h2 className="text-center text-2xl font-semibold mb-4">TOP 5 MÁS PICKEADOS</h2>
+              <hr className="border-t border-gray-600 mb-4" />
+              {loadingStats ? (
+                <p className="text-center text-xl">Cargando estadísticas...</p>
+              ) : (
+                <table className="w-full text-gray-200 border-collapse">
+                  <thead className="bg-gray-600">
+                    <tr>
+                      <th className="px-4 py-2 text-center">#</th>
+                      <th className="px-4 py-2 text-center">Nombre</th>
+                      <th className="px-4 py-2 text-center">Club</th>
+                      <th className="px-4 py-2 text-center">Rol</th>
+                      <th className="px-4 py-2 text-center">Valor</th>
+                      <th className="px-4 py-2 text-center">Veces Pickeado</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {topPickeados.map((jugador, index) => (
+                      <tr key={jugador.id} className="bg-gray-800 hover:bg-gray-700 transition duration-200">
+                        <td className="px-4 py-2 text-center">{index + 1}</td>
+                        <td className="px-4 py-2 text-center">{jugador.nombre}</td>
+                        <td className="px-4 py-2 text-center">{jugador.club}</td>
+                        <td className="px-4 py-2 text-center">{jugador.rol}</td>
+                        <td className="px-4 py-2 text-center">{jugador.valor}</td>
+                        <td className="px-4 py-2 text-center">{jugador.cantidad}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+              
 
             {/* Novedades */}
             <div className="bg-gray-700 p-6 rounded-lg">
