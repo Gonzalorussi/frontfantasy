@@ -22,6 +22,7 @@ import support from "../assets/iconos/support.svg?react";
 import { DateTime } from "luxon";
 import useRondaActual from "../hooks/useRondaActual";
 import anillo from '../assets/img/anillo.png'
+import Swal from 'sweetalert2';
 
 const roles = ["top", "jungle", "mid", "bottom", "support"];
 const iconosRoles = {
@@ -197,7 +198,13 @@ function Mercado() {
       await setDoc(rosterRef, nuevoRoster, { merge: true });
     }
 
-    alert("Roster confirmado.");
+    Swal.fire({
+    icon: 'success',
+    title: 'Roster confirmado',
+    text: 'Tu alineación fue guardada exitosamente.',
+    confirmButtonColor: '#d33',
+    confirmButtonText: '¡Perfecto!'
+    });
   };
 
   const filtrarJugadores = () => {
