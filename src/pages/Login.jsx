@@ -23,13 +23,11 @@ export default function Login() {
       const userSnap = await getDoc(userRef);
 
       if (!userSnap.exists()) {
-        // Si no existe, lo guardamos
         await setDoc(userRef, {
           nombre: user.displayName,
           email: user.email,
           fechaCreacion: serverTimestamp(),
         });
-        console.log('Usuario nuevo creado:', user.displayName);
       } else {
         console.log('Usuario ya existente:', user.displayName);
       }

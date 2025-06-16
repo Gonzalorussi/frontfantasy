@@ -92,20 +92,15 @@ if (loading || rondaLoading) {
   let textoEstadoRonda = '';
   if (rondaActual) {
     textoEstadoRonda = `Ronda actual: ${rondaActual.numero} en progreso`;
-    console.log(textoEstadoRonda)
   } else if (rondaAnterior) {
     const fechaFormateada = rondaAnterior.Fechafin
       .setLocale('es')
       .toFormat("dd 'de' LLLL 'de' yyyy - HH:mm");
     textoEstadoRonda = `Última ronda finalizada: Ronda ${rondaAnterior.numero} el día ${fechaFormateada}`;
-    console.log(rondaAnterior)
-    console.log(textoEstadoRonda)
   } else if (proximaRonda) {
     textoEstadoRonda = `Temporada aún no comenzó. Tu roster inicial será para la Ronda ${proximaRonda.numero}`;
-    console.log(textoEstadoRonda)
   } else {
     textoEstadoRonda = 'No hay rondas disponibles actualmente';
-    console.log(textoEstadoRonda)
   }
 
   return (

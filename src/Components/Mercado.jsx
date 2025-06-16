@@ -97,7 +97,6 @@ function Mercado() {
           .filter((jugador) => equiposPermitidos.includes(jugador.club));
 
         setJugadores(jugadoresData);
-        console.log(jugadoresData);
       } catch (error) {
         console.error("Error al obtener jugadores del MSI:", error);
       } finally {
