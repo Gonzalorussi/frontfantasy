@@ -239,7 +239,7 @@ export default function Home() {
 
         {loading ? (
           <div className="h-[70vh] flex justify-center items-center">
-            <p className="text-gray-200 font-semibold text-4xl">Cargando...</p>
+            <span className="loader"></span>
           </div>
         ) : (
           <div className="flex flex-col space-y-8 overflow-auto px-4">
@@ -337,7 +337,7 @@ export default function Home() {
               <h2 className="text-center text-2xl font-semibold mb-4">TOP 5 PROMEDIO DEL TORNEO</h2>
               <hr className="border-t border-gray-600 mb-4" />
               {loadingStats ? (
-                <p className="text-center text-xl">Cargando estadísticas...</p>
+                <span className="loader"></span>
               ) : (
                 <table className="w-full text-gray-200 border-collapse">
                   <thead className="bg-gray-600">
@@ -371,7 +371,7 @@ export default function Home() {
               <h2 className="text-center text-2xl font-semibold mb-4">TOP 5 MÁS PICKEADOS</h2>
               <hr className="border-t border-gray-600 mb-4" />
               {loadingStats ? (
-                <p className="text-center text-xl">Cargando estadísticas...</p>
+                <span className="loader"></span>
               ) : (
                 <table className="w-full text-gray-200 border-collapse">
                   <thead className="bg-gray-600">

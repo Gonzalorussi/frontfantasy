@@ -215,7 +215,7 @@ function Mercado() {
       <div>
         <Navbar user={user} />
         <main className="flex justify-center items-center h-[70vh] bg-gray-900">
-          <p className="text-gray-200 font-semibold text-4xl">Cargando...</p>
+         <span className="loader"></span>
         </main>
         <Footer />
       </div>
