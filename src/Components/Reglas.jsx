@@ -113,15 +113,11 @@ function Reglas() {
             <li>Assists: +1 punto</li>
             <li>Deaths: -1 punto</li>
             <li>CS (Farm): +0.01 puntos por CS</li>
-            <li>Primera Sangre: +1 punto</li>
           </ul>
 
           <h4 className="text-lg font-semibold mt-6">BONUS DE DESEMPEÑO:</h4>
           <ul className="list-disc pl-6 flex flex-col gap-y-2 mt-4">
             <li>Kill Participation ≥70%: +2 puntos</li>
-            <li>Triple Kill: +2 puntos</li>
-            <li>Quadra Kill: +3 puntos</li>
-            <li>Penta Kill: +5 puntos</li>
             <li>10+ Kills: +3 puntos</li>
             <li>Porcentaje de daño ≥30%: +3 puntos</li>
             <li>Victoria: +1 punto</li>
@@ -136,9 +132,8 @@ function Reglas() {
           </h4>
           <h5 className="mt-4 font-semibold">TOP:</h5>
           <ul className="list-disc pl-6 flex flex-col gap-y-2 mt-4">
-            <li>Solo Kill: +1 punto</li>
+            <li>Gold diff (≥2.5k): +2 puntos</li>
             <li>Porcentaje de daño ≥25%: +2 puntos</li>
-            <li>Tank Bonus (≥25% del daño del equipo recibido): +2 puntos</li>
           </ul>
 
           <h5 className="mt-4 font-semibold">JUNGLA:</h5>
@@ -157,14 +152,13 @@ function Reglas() {
           <h5 className="mt-4 font-semibold">BOT(ADC):</h5>
           <ul className="list-disc pl-6 flex flex-col gap-y-2 mt-4">
             <li>CS por Minuto ≥10 al minuto 15: +1.5 puntos</li>
-            <li>Daño por Minuto ≥1000: +1 punto</li>
+            <li>CS diff ≥75: +2 puntos</li>
           </ul>
 
           <h5 className="mt-4 font-semibold">SUPPORT:</h5>
           <ul className="list-disc pl-6 flex flex-col gap-y-2 mt-4">
             <li>10+ Asistencias: +2 puntos</li>
             <li>Kill Participation ≥75%: +2 puntos</li>
-            <li>Primer Dragon: +1.5 puntos</li>
             <li>
               Puntuación de Visión: puntos igual al puntaje de visión por minuto
             </li>
@@ -174,7 +168,7 @@ function Reglas() {
         <section className="bg-red-800 p-6 rounded-xl my-6">
           <h3 className="text-xl font-semibold">EXTRA RULE</h3>
           <p className="mt-4">
-            Por cada <strong>100 puntos acumulados</strong> por tu equipo,
+            Por cada <strong>150 puntos acumulados</strong> por tu equipo,
             recibirás un incremento de <strong>+2 monedas</strong> en tu
             presupuesto para futuras fases.
           </p>
