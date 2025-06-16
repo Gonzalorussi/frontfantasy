@@ -21,6 +21,7 @@ import bottom from "../assets/iconos/bottom.svg?react";
 import support from "../assets/iconos/support.svg?react";
 import { DateTime } from "luxon";
 import useRondaActual from "../hooks/useRondaActual";
+import anillo from '../assets/img/anillo.png'
 
 const roles = ["top", "jungle", "mid", "bottom", "support"];
 const iconosRoles = {
@@ -226,9 +227,10 @@ function Mercado() {
       <Navbar user={user} />
       <div className="max-w-[1400px] mx-auto p-4 flex flex-col gap-4">
         <div className="md:sticky top-0 z-10 bg-gray-800 rounded p-4 flex flex-col items-center gap-6">
-          <div className="text-center w-containter bg-gray-700 rounded text-xl font-semibold p-2">
-            Presupuesto restante:💰{" "}
-            <span className="text-yellow-400">{presupuesto}</span>
+          <div className="text-center w-containter bg-gray-700 rounded text-xl font-semibold p-2 flex justify-center items-center gap-2">
+              Presupuesto restante:
+              <img src={anillo} alt={anillo.name} className="w-6 h-6 " />
+              <span className="text-yellow-400">{presupuesto}</span>
           </div>
 
           <div className="flex-grow mx-4 overflow-x-auto">
@@ -326,16 +328,16 @@ function Mercado() {
                       alt={jugador.nombre}
                       className="border-1 w-14 h-14 rounded-full object-cover flex-shrink-0"
                     />
-                    <div className="flex gap-x-4 text-sm">
-                      <h3
-                        className="font-semibold truncate"
-                        title={jugador.nombre}
-                      >
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 text-sm w-full gap-y-1">
+                      <div className="truncate min-w-0 font-semibold" title={jugador.nombre}>
                         {jugador.nombre}
-                      </h3>
-                      <p className="uppercase text-center">{jugador.club}</p>
-                      <p className="capitalize text-center">{jugador.rol}</p>
-                      <p className="text-center font-mono">💰{jugador.valor}</p>
+                      </div>
+                      <div className="text-center uppercase sm:text-left">{jugador.club}</div>
+                      <div className="text-center capitalize md:text-center">{jugador.rol}</div>
+                      <div className="ttext-center font-mono flex justify-center items-center gap-1">
+                        <img src={anillo} alt={anillo.name} className="w-5 h-5" />
+                        {jugador.valor}
+                      </div>
                     </div>
                   </div>
                   <button
