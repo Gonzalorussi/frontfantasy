@@ -218,7 +218,7 @@ function Posiciones() {
                       className="grid grid-cols-[50px_80px_1fr_1fr_100px] items-center gap-4 text-center border-b border-gray-700 hover:bg-gray-800 py-3 transition-all text-sm md:text-base"
                     >
                       <div>{index + 1}</div>
-                      <div className="flex justify-center w-20 h-20 md:w-24 md:h-24 scale-75">
+                      <div className="flex justify-center w-20 h-20 md:w-24 md:h-24 scale-35">
                         <VistaPreviaEscudo
                           escudoId={team.escudoid}
                           rellenoId={team.rellenoid}

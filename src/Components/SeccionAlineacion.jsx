@@ -30,9 +30,7 @@ export default function SeccionAlineacion({ roster, size = "normal", mostrarAvis
       } shadow-lg`}
     >
       <div
-        className={`flex md:grid flex-col md:grid-cols-5 ${
-          isLarge ? "gap-x-6 gap-y-8" : "gap-x-4 gap-y-6"
-        }`}
+        className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-x-4 gap-y-6 w-full justify-center`}
       >
         {roles.map((rol) => {
           const jugador = roster?.[rol] ?? null;
@@ -40,9 +38,8 @@ export default function SeccionAlineacion({ roster, size = "normal", mostrarAvis
           return (
             <div
               key={rol}
-              className={`flex flex-col justify-center items-center ${
-                isLarge ? "p-4 w-[200px] h-[250px] md:w-[150px] md:h-[240px]" : "p-2 w-[300px] h-[350px] md:w-[120px] md:h-[200px]"
-              } bg-gray-800 rounded-xl shadow-lg`}
+               className={`flex flex-col justify-center items-center p-4 bg-gray-800 rounded-xl shadow-lg w-full max-w-[180px] md:max-w-[150px] lg:max-w-[160px] h-auto`}
+                style={{ minHeight: isLarge ? 240 : 200 }}
             >
               <div className="flex justify-center mb-3">
                 <Icono width={isLarge ? 50 : 40} height={isLarge ? 50 : 40} />

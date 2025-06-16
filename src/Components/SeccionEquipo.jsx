@@ -12,7 +12,7 @@ export default function SeccionEquipo({ team }) {
       <h2 className="text-center text-gray-200 text-lg font-semibold mb-4">
         {nombreequipo}
       </h2>
-      <div style={{ width: "140px", height: "140px" }}>
+      <div style={{ width: "100px", height: "100px" }}>
         <VistaPreviaEscudo
           escudoId={escudoid}
           rellenoId={rellenoid}
