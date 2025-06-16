@@ -333,7 +333,7 @@ export default function Home() {
             </div>
 
             {/* TOP 5 PROMEDIOS */}
-            <div className="w-full rounded-xl bg-gray-700 p-6">
+            <div className="w-full rounded-xl bg-gray-700 p-6 overflow-x-auto">
               <h2 className="text-center text-2xl font-semibold mb-4">TOP 5 PROMEDIO DEL TORNEO</h2>
               <hr className="border-t border-gray-600 mb-4" />
               {loadingStats ? (
@@ -367,7 +367,7 @@ export default function Home() {
             </div>
 
             {/* TOP 5 MAS PICKEADOS */}
-            <div className="w-full rounded-xl bg-gray-700 p-6">
+            <div className="w-full rounded-xl bg-gray-700 p-6 overflow-x-auto">
               <h2 className="text-center text-2xl font-semibold mb-4">TOP 5 MÁS PICKEADOS</h2>
               <hr className="border-t border-gray-600 mb-4" />
               {loadingStats ? (

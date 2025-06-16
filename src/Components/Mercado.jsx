@@ -77,7 +77,6 @@ function Mercado() {
           "al",
           "furia",
           "fly",
-          "c9",
           "gam",
           "ctbc",
         ];

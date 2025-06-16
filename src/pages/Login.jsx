@@ -56,7 +56,7 @@ export default function Login() {
       </div>
 
       {/* Columna derecha con la imagen */}
-      <div className='w-full md:w-2/3 h-64 md:h-auto'>
+      <div className='w-full md:w-2/3 h-64 md:h-auto flex-grow'>
         <img 
           src={login} 
           alt="imagen del MSI"
