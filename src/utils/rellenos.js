@@ -7,9 +7,10 @@ import Relleno6  from '../assets/rellenos/relleno6.svg?react';
 import Relleno7  from '../assets/rellenos/relleno7.svg?react';
 import Relleno8  from '../assets/rellenos/relleno8.svg?react';
 import Relleno9  from '../assets/rellenos/relleno9.svg?react';
-import Relleno10  from '../assets/rellenos/relleno10.svg?react';
-import Relleno11  from '../assets/rellenos/relleno11.svg?react';
-import Relleno12  from '../assets/rellenos/relleno12.svg?react';
+import Relleno10 from '../assets/rellenos/relleno10.svg?react';
+import Relleno11 from '../assets/rellenos/relleno11.svg?react';
+import Relleno12 from '../assets/rellenos/relleno12.svg?react';
+import Relleno13 from '../assets/rellenos/relleno13.svg?react';
 
 export default {
   relleno1: Relleno1,
@@ -23,5 +24,6 @@ export default {
   relleno9: Relleno9,
   relleno10: Relleno10,
   relleno11: Relleno11,
-  relleno12: Relleno12
+  relleno12: Relleno12,
+  relleno13: Relleno13,
 };

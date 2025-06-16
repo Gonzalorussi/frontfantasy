@@ -21,7 +21,7 @@
         <EscudoComponent
           className="absolute  w-full h-full"
           style={{ color: colorPrimario, stroke: colorSecundario,
-            transform: 'scale(1.2)',
+            transform: 'scale(1.75)',
             transformOrigin: 'center center'
           }}
         />
