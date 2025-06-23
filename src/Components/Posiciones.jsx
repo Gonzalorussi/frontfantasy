@@ -195,7 +195,6 @@ function Posiciones() {
                 <div>#</div>
                 <div>Escudo</div>
                 <div>Equipo</div>
-                <div>Usuario</div>
                 <div>Puntos</div>
               </div>
 
@@ -229,7 +228,6 @@ function Posiciones() {
                         />
                       </div>
                       <div>{team.name}</div>
-                      <div>{team.ownerName}</div>
                       <div className="font-semibold">{puntos.toFixed(2)}</div>
                     </div>
                   );
@@ -270,9 +268,6 @@ function Posiciones() {
                       </div>
                       <div className="flex flex-col justify-center">
                         <div className="font-semibold">{team.name}</div>
-                        <div className="text-sm text-gray-400">
-                          {team.ownerName}
-                        </div>
                       </div>
                     </div>
                   </div>

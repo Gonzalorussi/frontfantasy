@@ -69,16 +69,16 @@ function Mercado() {
         const jugadoresSnapshot = await getDocs(collection(db, "jugadores"));
 
         const equiposPermitidos = [
-          "t1",
-          "geng",
+          // "t1",
+          // "geng",
           "g2",
-          "koi",
+          // "koi",
           "blg",
-          "al",
+          // "al",
           "furia",
-          "fly",
-          "gam",
-          "ctbc",
+          // "fly",
+          // "gam",
+          "cfo",
         ];
 
         const jugadoresData = jugadoresSnapshot.docs

@@ -51,7 +51,7 @@ export default function Footer() {
       <a href="https://www.twitch.tv/akofena_" target="_blank" rel="noopener noreferrer" title="Twitch" className="hover:text-purple-400 transition">
         <FaTwitch className="w-7 h-7" />
       </a>
-      <a href="https://youtube.com/akofena" target="_blank" rel="noopener noreferrer" title="YouTube" className="hover:text-red-400 transition">
+      <a href="https://www.youtube.com/@AkofenaLoL" target="_blank" rel="noopener noreferrer" title="YouTube" className="hover:text-red-400 transition">
         <FaYoutube className="w-7 h-7" />
       </a>
       <a href="https://x.com/AkofenaG" target="_blank" rel="noopener noreferrer" title="Twitter" className="hover:text-blue-400 transition">

@@ -33,6 +33,16 @@ function Reglas() {
 
         <hr className="mt-4 border-1" />
 
+
+        <section className="bg-red-800 p-6 rounded-xl my-6">
+          <h3 className="text-xl font-semibold">IMPORTANTE</h3>
+          <p className="text-xl mt-4">
+            Las rondas son <strong>diarias</strong> y se puede
+            confirmar/actualizar el roster hasta <strong>1 hora</strong> antes
+            de iniciada la ronda.
+          </p>
+        </section>
+
         <h3 className="text-white mt-6 text-2xl font-semibold">CÓMO JUGAR</h3>
 
         <section className="bg-gray-800 p-6 rounded-xl mt-6">
@@ -90,7 +100,7 @@ function Reglas() {
 
         <h3 className="text-white mt-6 text-2xl font-semibold">PUNTAJES</h3>
 
-        <section className="bg-gray-800 p-6 rounded-xl mt-6">
+        <section className="bg-gray-800 p-6 rounded-xl my-6">
           <p>
             Los jugadores de tu equipo ganan puntos según su rendimiento en los
             partidos del MSI. El puntaje es una combinación de eventos básicos
@@ -163,15 +173,6 @@ function Reglas() {
               Puntuación de Visión: puntos igual al puntaje de visión por minuto
             </li>
           </ul>
-        </section>
-
-        <section className="bg-red-800 p-6 rounded-xl my-6">
-          <h3 className="text-xl font-semibold">EXTRA RULE</h3>
-          <p className="mt-4">
-            Por cada <strong>150 puntos acumulados</strong> por tu equipo,
-            recibirás un incremento de <strong>+2 monedas</strong> en tu
-            presupuesto para futuras fases.
-          </p>
         </section>
 
         <Footer />
