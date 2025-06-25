@@ -66,20 +66,7 @@ function Mercado() {
     async function obtenerJugadores() {
       try {
         const db = getFirestore();
-        const jugadoresSnapshot = await getDocs(collection(db, "jugadores"));
-
-        const equiposPermitidos = [
-          // "t1",
-          // "geng",
-          "g2",
-          // "koi",
-          "blg",
-          // "al",
-          "furia",
-          // "fly",
-          "gam",
-          // "cfo",
-        ];
+        const jugadoresSnapshot = await getDocs(collection(db, "jugadorespermitidos"));
 
         const jugadoresData = jugadoresSnapshot.docs
           .map((doc) => {
@@ -93,13 +80,12 @@ function Mercado() {
               foto: data.foto || data.Foto || silueta,
             };
           })
-          .filter((jugador) => equiposPermitidos.includes(jugador.club));
 
         setJugadores(jugadoresData);
       } catch (error) {
         console.error("Error al obtener jugadores del MSI:", error);
       } finally {
-        setCargando(false); // Termina la carga
+        setCargando(false);
       }
     }
 
