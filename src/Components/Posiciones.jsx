@@ -48,51 +48,39 @@ function Posiciones() {
   }, []);
 
   useEffect(() => {
-    const fetchTeams = async () => {
-      const teamsSnapshot = await getDocs(collection(db, "equipos"));
-      const teamsList = [];
-
-      for (const teamDoc of teamsSnapshot.docs) {
-        const teamData = teamDoc.data();
-
-        const userRef = doc(db, "usuarios", teamData.usuarioid);
-        const userSnap = await getDoc(userRef);
-        const ownerName = userSnap.exists() ? userSnap.data().nombre : "—";
-
-        teamsList.push({
-          id: teamDoc.id,
-          name: teamData.nombreequipo || "Nombre no disponible",
-          ownerName,
-          totalpuntos: teamData.totalpuntos || 0,
-          puntajesronda: teamData.puntajesronda || {},
-          escudoid: teamData.escudoid,
-          rellenoid: teamData.rellenoid,
-          colorprimario: teamData.colorprimario,
-          colorsecundario: teamData.colorsecundario,
-        });
+    const fetchRanking = async () => {
+      setLoading(true);
+      let docId = "top50acumulado";
+      if (modoVista === "ronda" && rondaSeleccionada) {
+        const numero = rondaSeleccionada.replace("ronda", "");
+        docId = `top50ronda${numero}`;
       }
 
-      setTeams(teamsList);
+      try {
+        const docSnap = await getDoc(doc(db, "rankings", docId));
+
+        if (!docSnap.exists()) {
+          setTeams([]);
+          setLoading(false);
+          return;
+        }
+
+        const rankingEquipos = docSnap.data().equipos || [];
+
+        setTeams(rankingEquipos);
+      } catch (error) {
+        console.error("Error al obtener el ranking:", error);
+        setTeams([]);
+      }
+
       setLoading(false);
     };
-
-    fetchTeams();
-  }, []);
-
-  const teamsOrdenados = [...teams].sort((a, b) => {
-    if (modoVista === "total") {
-      return b.totalpuntos - a.totalpuntos;
-    } else if (modoVista === "ronda" && rondaSeleccionada) {
-      const puntosA = a.puntajesronda?.[rondaSeleccionada] || 0;
-      const puntosB = b.puntajesronda?.[rondaSeleccionada] || 0;
-      return puntosB - puntosA;
-    }
-    return 0;
-  });
+    fetchRanking();
+  }, [modoVista, rondaSeleccionada]);
 
   const hayPuntajes =
     modoVista === "ronda"
-      ? teams.some((team) => (team.puntajesronda?.[rondaSeleccionada] ?? 0) > 0)
+      ? teams.some((team) => (team.puntos ?? 0) > 0)
       : true;
 
   if (loading) {
@@ -205,12 +193,8 @@ function Posiciones() {
               )}
 
               {hayPuntajes &&
-                teamsOrdenados.map((team, index) => {
-                  const puntos =
-                    modoVista === "total"
-                      ? team.totalpuntos
-                      : team.puntajesronda?.[rondaSeleccionada] || 0;
-
+                teams.map((team, index) => {
+                 const puntos = team.puntos ?? 0;
                   return (
                     <div
                       key={team.id}
@@ -227,7 +211,7 @@ function Posiciones() {
                           rellenoSize={70}
                         />
                       </div>
-                      <div>{team.name}</div>
+                      <div>{team.nombreequipo}</div>
                       <div className="font-semibold">{puntos.toFixed(2)}</div>
                     </div>
                   );
@@ -236,12 +220,8 @@ function Posiciones() {
 
             {/* Mobile */}
             <div className="md:hidden flex flex-col gap-3 mt-6">
-              {teamsOrdenados.map((team, index) => {
-                const puntos =
-                  modoVista === "total"
-                    ? team.totalpuntos
-                    : team.puntajesronda?.[rondaSeleccionada] || 0;
-
+              {teams.map((team, index) => {
+                const puntos = team.puntos ?? 0;
                 return (
                   <div
                     key={team.id}
@@ -267,7 +247,7 @@ function Posiciones() {
                         />
                       </div>
                       <div className="flex flex-col justify-center">
-                        <div className="font-semibold">{team.name}</div>
+                        <div className="font-semibold">{team.nombreequipo}</div>
                       </div>
                     </div>
                   </div>
