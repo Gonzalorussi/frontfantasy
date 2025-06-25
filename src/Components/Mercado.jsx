@@ -77,8 +77,8 @@ function Mercado() {
           // "al",
           "furia",
           // "fly",
-          // "gam",
-          "cfo",
+          "gam",
+          // "cfo",
         ];
 
         const jugadoresData = jugadoresSnapshot.docs
@@ -258,6 +258,10 @@ function Mercado() {
             </button>
           </div>
         </div>
+
+          <div className="text-center text-sm bg-gray-800 rounded p-4">
+            <p>Los roster son por fecha. <br /> Los jugadores visibles son los que compiten esa fecha. <br /> <strong>CADA FECHA DEBES ARMAR TU ROSTER.</strong></p>
+          </div>
 
         <div className="flex gap-6 flex-col sm:flex-row">
           <div className="flex flex-col w-full sm:w-[320px] rounded p-4 md:sticky top-[calc(64px+1rem)] self-start mb-4 sm:mb-0">
