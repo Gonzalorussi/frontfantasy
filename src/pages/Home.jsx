@@ -97,28 +97,28 @@ export default function Home() {
   const cargarTopRoster = async () => {
     if (!rondaAnterior) return;
     try {
-      const jugadoresSnapshot = await getDocs(collection(db, "jugadores"));
-      const jugadores = jugadoresSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const docRef = doc(db, "rosterideal", `ronda${rondaAnterior.numero}`);
+      const docSnap = await getDoc(docRef);
 
-      const roles = ["top", "jungle", "mid", "bottom", "support"];
-      const topPorRol = roles.map(rol => {
-        const jugadoresDelRol = jugadores.filter(j => j.rol === rol);
-        let mejor = null;
-        let mejorPuntaje = -Infinity;
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        const roles = ["top", "jungle", "mid", "bottom", "support"];
 
-        for (const jugador of jugadoresDelRol) {
-          const puntaje = jugador.puntajeronda?.[`ronda${rondaAnterior.numero}`] ?? 0;
-          if (puntaje > mejorPuntaje) {
-            mejor = { ...jugador, puntaje };
-            mejorPuntaje = puntaje;
-          }
-        }
-        return mejor;
-      }).filter(j => j); // filtramos posibles null
+        // Solo incluimos los que existen
+        const topPorRol = roles
+          .map((rol) => {
+            const jugador = data[rol];
+            return jugador ? { ...jugador, rol } : null;
+          })
+          .filter((j) => j); // eliminamos los null
 
-      setTopRoster(topPorRol);
+        setTopRoster(topPorRol);
+      } else {
+        console.warn(`No se encontró rosterideal para ronda${rondaAnterior.numero}`);
+        setTopRoster([]); // limpia si no existe
+      }
     } catch (error) {
-      console.error("Error al cargar Top Roster:", error);
+      console.error("Error al cargar Top Roster desde rosterideal:", error);
     }
   };
 
