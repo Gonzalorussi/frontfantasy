@@ -11,8 +11,6 @@ import TopRosterCard from "../Components/TopRosterCard";
 
 export default function Home() {
   const [user, setUser] = useState(null);
-  const [team, setTeam] = useState(null);
-  const [topTeams, setTopTeams] = useState([]);
   const [posicion, setPosicion] = useState(null);
   const [puntosUltimaRonda, setPuntosUltimaRonda] = useState(0);
   const [puntosAcumulados, setPuntosAcumulados] = useState(0);
@@ -21,6 +19,8 @@ export default function Home() {
   const [topPromedios, setTopPromedios] = useState([]);
   const [topPickeados, setTopPickeados] = useState([]);
   const [loadingStats, setLoadingStats] = useState(true);
+  const [top3Ronda, setTop3Ronda] = useState([]);
+  const [top3Acumulado, setTop3Acumulado] = useState([]);
   const navigate = useNavigate();
 
   const {
@@ -45,73 +45,53 @@ export default function Home() {
   useEffect(() => {
     if (!user) return;
     const cargarDatos = async () => {
-      setLoading(true);
-      try {
-        const teamRef = doc(db, "equipos", user.uid);
-        const teamSnap = await getDoc(teamRef);
+    setLoading(true);
+    try {
+      // Ranking acumulado
+      const rankingAcumSnap = await getDoc(doc(db, "rankings", "rankingacumulado"));
+      const rankingAcum = rankingAcumSnap.exists() ? rankingAcumSnap.data().equipos || [] : [];
 
-        if (teamSnap.exists()) {
-          const teamData = teamSnap.data();
-          setTeam(teamData);
+      // Top 3 acumulado
+      const top3Acum = rankingAcum.slice(0, 3);
 
-          // Puntaje acumulado:
-          setPuntosAcumulados(teamData.totalpuntos || 0);
+      // Buscar el equipo del usuario      
+      const equipoUsuarioAcum = rankingAcum.findIndex((e) => e.usuarioid === user.uid);
+        if (!equipoUsuarioAcum) {
+        console.warn("No se encontró el equipo del usuario en el ranking acumulado");
+}
+      const posicion = equipoUsuarioAcum?.posicion ?? null;
+      const puntosAcumulados = equipoUsuarioAcum?.puntos ?? 0;
 
-          // Puntaje de última ronda terminada:
-          let numeroRondaParaPuntaje = null;
+      // Ranking de la última ronda
+      const rankingRondaSnap = await getDoc(doc(db, "rankings", `rankingronda${rondaAnterior.numero}`));
+      const rankingRonda = rankingRondaSnap.exists() ? rankingRondaSnap.data().equipos || [] : [];
 
-          if (rondaAnterior) {
-            numeroRondaParaPuntaje = rondaAnterior.numero;
-          } else if (!rondaActual && !rondaAnterior && proximaRonda === null) {
-            const rondasSnapshot = await getDocs(collection(db, "rondas"));
-            let maxNumero = 0;
-            rondasSnapshot.forEach((doc) => {
-              const data = doc.data();
-              if (data.numero > maxNumero) maxNumero = data.numero;
-            });
-            numeroRondaParaPuntaje = maxNumero;
-          }
+      // Top 3 ronda
+      const top3Ronda = rankingRonda.slice(0, 3);
 
-          if (numeroRondaParaPuntaje !== null) {
-            const puntos =
-              teamData.puntajesronda?.[`ronda${numeroRondaParaPuntaje}`] || 0;
-            setPuntosUltimaRonda(puntos);
-          } else {
-            setPuntosUltimaRonda(0);
-          }
+      // Buscar el puntaje de la última ronda
+      
+      const equipoUsuarioRonda = rankingRonda.find((e) => e.userid === user.uid);
+      const puntosUltimaRonda = equipoUsuarioRonda?.puntos ?? 0;
 
-          // Obtener todos los equipos para ranking y posición
-          const teamsSnapshot = await getDocs(collection(db, "equipos"));
-          const teamsList = teamsSnapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
+      // Setear estados
+      setPosicion(posicion);
+      setPuntosAcumulados(puntosAcumulados);
+      setPuntosUltimaRonda(puntosUltimaRonda);
+      setTop3Acumulado(top3Acum); // ya no se llama top3Acum, pero lo usás así en el render
+      setTop3Ronda(top3Ronda);
 
-          const ordenados = teamsList.sort(
-            (a, b) => (b.totalpuntos || 0) - (a.totalpuntos || 0)
-          );
-          setTopTeams(ordenados.slice(0, 3));
-
-          const posicionUsuario =
-            ordenados.findIndex((team) => team.id === user.uid) + 1;
-          setPosicion(posicionUsuario);
-        } else {
-          setTeam(null);
-          setPuntosAcumulados(0);
-          setPuntosUltimaRonda(0);
-          setPosicion(null);
-        }
-      } catch (err) {
-        console.error("Error al cargar datos:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (!loadingRondas) {
-      cargarDatos();
+    } catch (err) {
+      console.error("Error al cargar datos:", err);
+    } finally {
+      setLoading(false);
     }
-  }, [user, rondaActual, rondaAnterior, proximaRonda, loadingRondas]);
+  };
+
+  if (!loadingRondas) {
+    cargarDatos();
+  }
+}, [user, rondaAnterior, loadingRondas]);
 
   useEffect(() => {
   const cargarTopRoster = async () => {
@@ -234,7 +214,7 @@ export default function Home() {
       <main className="flex flex-col flex-1 py-6 bg-gray-800">
         <div className="max-w-[1200px] mx-auto w-full">
         <h1 className="text-center mb-6 font-semibold text-2xl">
-          Bienvenido, {user?.displayName}
+          Bienvenido!!!
         </h1>
 
         {loading ? (
@@ -277,7 +257,7 @@ export default function Home() {
                     </tr>
                   </thead>
                   <tbody>
-                    {topTeams.map((team, index) => (
+                    {top3Ronda.map((team, index) => (
                       <tr
                         key={team.id}
                         className="bg-gray-800 hover:bg-gray-700 transition duration-200"
@@ -306,7 +286,7 @@ export default function Home() {
                     </tr>
                   </thead>
                   <tbody>
-                    {topTeams.map((team, index) => (
+                    {top3Acumulado.map((team, index) => (
                       <tr
                         key={team.id}
                         className="bg-gray-800 hover:bg-gray-700 transition duration-200"
