@@ -50,10 +50,10 @@ function Posiciones() {
   useEffect(() => {
     const fetchRanking = async () => {
       setLoading(true);
-      let docId = "top50acumulado";
+      let docId = "rankingacumulado";
       if (modoVista === "ronda" && rondaSeleccionada) {
         const numero = rondaSeleccionada.replace("ronda", "");
-        docId = `top50ronda${numero}`;
+        docId = `rankingronda${numero}`;
       }
 
       try {
@@ -193,14 +193,14 @@ function Posiciones() {
               )}
 
               {hayPuntajes &&
-                teams.map((team, index) => {
+                teams.map((team) => {
                  const puntos = team.puntos ?? 0;
                   return (
                     <div
                       key={team.id}
                       className="grid grid-cols-[50px_80px_1fr_1fr_100px] items-center gap-4 text-center border-b border-gray-700 hover:bg-gray-800 py-3 transition-all text-sm md:text-base"
                     >
-                      <div>{index + 1}</div>
+                      <div>{team.posicion}</div>
                       <div className="flex justify-center w-20 h-20 md:w-24 md:h-24 scale-35">
                         <VistaPreviaEscudo
                           escudoId={team.escudoid}
@@ -220,7 +220,7 @@ function Posiciones() {
 
             {/* Mobile */}
             <div className="md:hidden flex flex-col gap-3 mt-6">
-              {teams.map((team, index) => {
+              {teams.map((team) => {
                 const puntos = team.puntos ?? 0;
                 return (
                   <div
@@ -229,7 +229,7 @@ function Posiciones() {
                   >
                     <div className="flex justify-between items-center mb-3">
                       <span className="font-semibold text-yellow-400 text-lg">
-                        #{index + 1}
+                        #{team.posicion}
                       </span>
                       <span className="text-yellow-400 font-semibold text-lg">
                         {puntos.toFixed(2)} pts
