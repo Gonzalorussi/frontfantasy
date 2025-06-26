@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef  } from "react";
 import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import Navbar from "./Navbar";
@@ -17,6 +17,7 @@ function Posiciones() {
   const [rondasDisponibles, setRondasDisponibles] = useState([]);
   const [rondaSeleccionada, setRondaSeleccionada] = useState("");
   const [loading, setLoading] = useState(true);
+  const cacheRanking = useRef({});
 
   useEffect(() => {
     // Revisar el estado de autenticación del usuario
@@ -51,9 +52,18 @@ function Posiciones() {
     const fetchRanking = async () => {
       setLoading(true);
       let docId = "rankingacumulado";
+      let cacheKey = "total";
+
       if (modoVista === "ronda" && rondaSeleccionada) {
         const numero = rondaSeleccionada.replace("ronda", "");
         docId = `rankingronda${numero}`;
+        cacheKey = `ronda${numero}`;
+      }
+
+      if (cacheRanking.current[cacheKey]) {
+        setTeams(cacheRanking.current[cacheKey]);
+        setLoading(false);
+        return;
       }
 
       try {
@@ -61,12 +71,14 @@ function Posiciones() {
 
         if (!docSnap.exists()) {
           setTeams([]);
+          cacheRanking.current[cacheKey] = [];
           setLoading(false);
           return;
         }
 
         const rankingEquipos = docSnap.data().equipos || [];
 
+        cacheRanking.current[cacheKey] = rankingEquipos;
         setTeams(rankingEquipos);
       } catch (error) {
         console.error("Error al obtener el ranking:", error);
