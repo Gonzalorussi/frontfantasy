@@ -23,6 +23,7 @@ import { DateTime } from "luxon";
 import useRondaActual from "../hooks/useRondaActual";
 import anillo from '../assets/img/anillo.png'
 import Swal from 'sweetalert2';
+import { FaYoutube, FaTwitch } from "react-icons/fa";
 
 const roles = ["top", "jungle", "mid", "bottom", "support"];
 const iconosRoles = {
@@ -43,6 +44,7 @@ function Mercado() {
   const [edicionHabilitada, setEdicionHabilitada] = useState(false);
   const [user, setUser] = useState(null); // Estado para el usuario
   const [cargando, setCargando] = useState(true); // Estado de carga
+  const [partidasDelDia, setPartidasDelDia] = useState([]);
 
   const db = getFirestore();
   const { rondaActual, proximaRonda, loading: loadingRondas } = useRondaActual();
@@ -201,6 +203,29 @@ function Mercado() {
     });
   };
 
+  useEffect(() => {
+  async function obtenerPartidas() {
+    try {
+      const snapshot = await getDocs(collection(db, "partidasdeldia"));
+      const listaPartidas = [];
+
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+
+        Object.values(data).forEach((partida) => {
+          listaPartidas.push(partida);
+        });
+      });
+
+      setPartidasDelDia(listaPartidas);
+    } catch (error) {
+      console.error("Error al obtener partidas del día:", error);
+    }
+  }
+
+  obtenerPartidas();
+}, []);
+
   if (cargando || loadingRondas) {
     return (
       <div>
@@ -281,7 +306,72 @@ function Mercado() {
                 );
               })}
             </div>
+
+            {/* Partidas del día */}
+            {partidasDelDia.map((partida, index) => (
+            <div
+              key={index}
+              className="bg-gray-800 p-3 rounded-lg shadow-md flex flex-col gap-3 mt-4"
+            >
+              {/* Parte superior: Equipos y hora/fecha */}
+              <div className="flex justify-between items-center">
+              {/* Equipos */}
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-2">
+                    <img
+                      src={partida.equipo1.logo}
+                      alt={partida.equipo1.club}
+                      className="w-6 h-6 rounded-full"
+                    />
+                    <span className="uppercase font-semibold text-sm">
+                      {partida.equipo1.club}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <img
+                      src={partida.equipo2.logo}
+                      alt={partida.equipo2.club}
+                      className="w-6 h-6 rounded-full"
+                    />
+                    <span className="uppercase font-semibold text-sm">
+                    {partida.equipo2.club}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Fecha y hora */}
+                <div className="flex flex-col items-end text-sm text-white">
+                  <span className="text-gray-400">{partida.fecha}</span>
+                  <span>{partida.hora}</span>
+                </div>
+              </div>
+
+                {/* Línea VER EN VIVO e íconos */}
+                <div className="border-t border-gray-600 pt-2 flex justify-between items-center mt-2">
+                  <span className="text-yellow-400 font-semibold text-sm">VER EN VIVO</span>
+                  <div className="flex gap-3 text-lg">
+                  <a
+                    href="https://www.youtube.com/LoLEsportsLatinoamérica"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-red-600"
+                    >
+                    <FaYoutube />
+                  </a>
+                  <a
+                    href="https://www.twitch.tv/lvpesports"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-purple-500"
+                    >
+                    <FaTwitch />
+                  </a>
+                </div>
+              </div>
+            </div>
+            ))}
           </div>
+
 
           <div className="flex-grow max-h-[calc(100vh-150px)] overflow-y-auto scrollbar-thin scrollbar-thumb-blue-600 scrollbar-track-gray-700 bg-gray-800 rounded p-4">
             {filtrarJugadores().map((jugador) => {
