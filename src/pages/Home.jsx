@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../firebase";
-import { doc, getDoc, collection, getDocs } from "firebase/firestore";
+import { doc, getDoc  } from "firebase/firestore";
 import Navbar from "../Components/Navbar";
 import Footer from "../Components/Footer";
 import { useNavigate } from "react-router-dom";
@@ -126,86 +126,36 @@ export default function Home() {
 }, [rondaAnterior]);
 
   useEffect(() => {
-    const cargarEstadisticas = async () => {
-      if (!rondaAnterior) {
-        setLoadingStats(false);
-       return;
+  const cargarEstadisticasDesdeBackend = async () => {
+    try {
+      const [promediosSnap, seleccionadosSnap] = await Promise.all([
+        getDoc(doc(db, "topplayers", "top5promedios")),
+        getDoc(doc(db, "topplayers", "top5seleccionados"))
+      ]);
+
+      if (promediosSnap.exists()) {
+        const data = promediosSnap.data();
+        setTopPromedios(data.jugadores || []);
+      } else {
+        console.warn("No se encontró top5promedios");
       }
 
-      try { const jugadoresSnapshot = await getDocs(collection(db, "jugadores"));
-        const jugadoresList = jugadoresSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-        const promedios = jugadoresList.map(jugador => {
-        const puntajesRonda = jugador.puntajeronda || {};
-        const puntajesValidos = Object.values(puntajesRonda).filter(p => p > 0);
-        const totalPuntos = puntajesValidos.reduce((acc, val) => acc + val, 0);
-        const cantidadJugadas = puntajesValidos.length;
-        const promedio = cantidadJugadas > 0 ? totalPuntos / cantidadJugadas : 0;
-        return {
-          id: jugador.id,
-          nombre: jugador.nombre,
-          club: jugador.club,
-          rol: jugador.rol,
-          valor: jugador.valor,
-          promedio: promedio.toFixed(2),
-          };
-        });
-
-        promedios.sort((a, b) => {
-          if (b.promedio !== a.promedio) {
-            return b.promedio - a.promedio;
-          }
-          return a.valor - b.valor;
-        });
-
-        setTopPromedios(promedios.slice(0, 5));
-
-        const rostersSnapshot = await getDocs(collection(db, "rosters"));
-        const conteo = {};
-
-        rostersSnapshot.forEach(doc => {
-  const data = doc.data();
-  Object.keys(data).forEach(campo => {
-    if (campo.startsWith("ronda")) {
-      const numeroRonda = parseInt(campo.replace("ronda", ""), 10);
-      if (numeroRonda <= rondaAnterior.numero) {
-        const ronda = data[campo];
-        ["top", "mid", "jungle", "botton", "support"].forEach(posicion => {
-          const jugadorObj = ronda[posicion];
-          const jugadorId = jugadorObj?.id;
-          if (jugadorId) {
-            conteo[jugadorId] = (conteo[jugadorId] || 0) + 1;
-          }
-        });
+      if (seleccionadosSnap.exists()) {
+        const data = seleccionadosSnap.data();
+        setTopPickeados(data.jugadores || []);
+      } else {
+        console.warn("No se encontró top5seleccionados");
       }
+    } catch (err) {
+      console.error("Error al cargar estadísticas desde backend:", err);
+    } finally {
+      setLoadingStats(false);
     }
-  });
-});
-        const pickeados = Object.entries(conteo).map(([id, cantidad]) => {
-          const jugador = jugadoresList.find(j => j.id === id);
-          return {
-            id,
-            nombre: jugador?.nombre || "Desconocido",
-            club: jugador?.club || "-",
-            rol: jugador?.rol || "-",
-            valor: jugador?.valor || 0,
-            cantidad
-          };
-        });
+  };
 
-        pickeados.sort((a, b) => b.cantidad - a.cantidad);
-        setTopPickeados(pickeados.slice(0, 5));
-      } catch (err) {
-        console.error("Error al cargar estadísticas:", err);
-        } finally {
-        setLoadingStats(false);
-      }
-    };
+  cargarEstadisticasDesdeBackend();
+}, []);
 
-    cargarEstadisticas();
-  }, [rondaAnterior]);
 
   return (
     <div className="bg-gray-900 text-gray-200 min-h-screen flex flex-col">
@@ -338,7 +288,7 @@ export default function Home() {
                         <td className="px-4 py-2 text-center">{jugador.club}</td>
                         <td className="px-4 py-2 text-center">{jugador.rol}</td>
                         <td className="px-4 py-2 text-center">{jugador.valor}</td>
-                        <td className="px-4 py-2 text-center">{jugador.promedio}</td>
+                        <td className="px-4 py-2 text-center">{jugador.promediopuntos}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -372,7 +322,7 @@ export default function Home() {
                         <td className="px-4 py-2 text-center">{jugador.club}</td>
                         <td className="px-4 py-2 text-center">{jugador.rol}</td>
                         <td className="px-4 py-2 text-center">{jugador.valor}</td>
-                        <td className="px-4 py-2 text-center">{jugador.cantidad}</td>
+                        <td className="px-4 py-2 text-center">{jugador.selecciones}</td>
                       </tr>
                     ))}
                   </tbody>
