@@ -68,23 +68,13 @@ function Mercado() {
     async function obtenerJugadores() {
       try {
         const db = getFirestore();
-        const jugadoresSnapshot = await getDocs(collection(db, "jugadorespermitidos"));
+        const jugadoresSnapshot = await getDoc(doc(db, "jugadorespermitidos", "agregado"));
 
-        const jugadoresData = jugadoresSnapshot.docs
-          .map((doc) => {
-            const data = doc.data();
-            return {
-              id: doc.id,
-              nombre: data.nombre || data.Nombre || "",
-              club: (data.club || data.Club || "").toLowerCase(),
-              rol: data.rol || data.Rol || "",
-              valor: data.valor || data.Valor || 0,
-              foto: data.foto || data.Foto || silueta,
-            };
-          })
-
-        setJugadores(jugadoresData);
-      } catch (error) {
+        if (jugadoresSnapshot.exists()) {
+          const data = jugadoresSnapshot.data();
+          setJugadores(data.jugadores || []);
+        }
+      }catch (error) {
         console.error("Error al obtener jugadores del MSI:", error);
       } finally {
         setCargando(false);
@@ -159,39 +149,85 @@ function Mercado() {
   };
 
   const confirmarRoster = async () => {
-    if (
-      !usuarioId ||
-      Object.keys(alineacion).length !== 5 ||
-      !edicionHabilitada ||
-      !proximaRonda
-    )
-      return;
+  if (
+    !usuarioId ||
+    Object.keys(alineacion).length !== 5 ||
+    !edicionHabilitada ||
+    !proximaRonda
+  )
+    return;
 
-    const rosterRef = doc(db, "rosters", usuarioId);
-    const snapshot = await getDoc(rosterRef);
-    const campoRonda = `ronda${proximaRonda.numero}`;
+  const rosterRef = doc(db, "rosters", usuarioId);
+  const snapshot = await getDoc(rosterRef);
+  const campoRonda = `ronda${proximaRonda.numero}`;
 
-    const nuevoRoster = {
-      [campoRonda]: alineacion,
-      lastupdate: serverTimestamp(),
-      userid: usuarioId,
-    };
+  const nuevoRoster = {
+    [campoRonda]: alineacion,
+    lastupdate: serverTimestamp(),
+    userid: usuarioId,
+  };
 
-    if (!snapshot.exists()) {
-      nuevoRoster.createdat = serverTimestamp();
-      await setDoc(rosterRef, nuevoRoster);
-    } else {
-      await setDoc(rosterRef, nuevoRoster, { merge: true });
+  const batch = db.batch();
+
+  // Map de jugadores actuales (nuevo)
+  const nuevosJugadores = Object.values(alineacion).reduce((acc, jugador) => {
+    acc[jugador.id] = jugador;
+    return acc;
+  }, {});
+
+  if (!snapshot.exists()) {
+    // ✅ Primera vez que confirma → suma 1 a cada jugador
+    for (const jugador of Object.values(nuevosJugadores)) {
+      const jugadorRef = doc(db, "jugadores", jugador.id);
+      batch.update(jugadorRef, {
+        selecciones: (jugador.selecciones || 0) + 1,
+      });
     }
 
-    Swal.fire({
+    nuevoRoster.createdat = serverTimestamp();
+    batch.set(rosterRef, nuevoRoster);
+  } else {
+    // Ya había confirmado → ver qué cambió
+    const data = snapshot.data();
+    const anterior = data[campoRonda] || {};
+    const jugadoresAnteriores = Object.values(anterior).reduce((acc, j) => {
+      acc[j.id] = j;
+      return acc;
+    }, {});
+
+    // Resta 1 a los que salieron
+    for (const id in jugadoresAnteriores) {
+      if (!nuevosJugadores[id]) {
+        const jugadorRef = doc(db, "jugadores", id);
+        batch.update(jugadorRef, {
+          selecciones: Math.max((jugadoresAnteriores[id].selecciones || 1) - 1, 0),
+        });
+      }
+    }
+
+    // Suma 1 a los que entraron
+    for (const id in nuevosJugadores) {
+      if (!jugadoresAnteriores[id]) {
+        const jugadorRef = doc(db, "jugadores", id);
+        batch.update(jugadorRef, {
+          selecciones: (nuevosJugadores[id].selecciones || 0) + 1,
+        });
+      }
+    }
+
+    batch.set(rosterRef, nuevoRoster, { merge: true });
+  }
+
+  await batch.commit();
+
+  Swal.fire({
     icon: 'success',
     title: 'Roster confirmado',
     text: 'Tu alineación fue guardada exitosamente.',
     confirmButtonColor: '#d33',
     confirmButtonText: '¡Perfecto!'
-    });
-  };
+  });
+};
 
   const filtrarJugadores = () => {
     return jugadores.filter((j) => {
