@@ -8,6 +8,7 @@ import {
   getDoc,
   getDocs,
   collection,
+  writeBatch,
 } from "firebase/firestore";
 import silueta from "../assets/img/silueta.webp";
 import Navbar from "./Navbar";
@@ -167,7 +168,7 @@ function Mercado() {
     userid: usuarioId,
   };
 
-  const batch = db.batch();
+  const batch = writeBatch(db);
 
   // Map de jugadores actuales (nuevo)
   const nuevosJugadores = Object.values(alineacion).reduce((acc, jugador) => {
