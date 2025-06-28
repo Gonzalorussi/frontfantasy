@@ -167,6 +167,11 @@ export default function Home() {
           Bienvenido!!!
         </h1>
 
+        <div className="flex flex-col p-4 bg-red-700 m-4 rounded-md text-md font-semibold text-center text-gray-200">
+          <p>ESTAMOS ACTUALIZANDO ESTADÍSTICAS EN LA BASE DE DATOS</p>
+          <p>EN LA SECCIÓN 'POSICIONES' YA PUEDEN VISUALIZAR SU EQUIPO, SU PUESTO Y PUNTAJE</p>
+        </div>
+
         {loading ? (
           <div className="h-[70vh] flex justify-center items-center">
             <span className="loader"></span>
