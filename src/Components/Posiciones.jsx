@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef  } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import Navbar from "./Navbar";
@@ -8,7 +8,7 @@ import { Listbox, Transition } from "@headlessui/react";
 import { FaChevronDown } from "react-icons/fa";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../firebase";
-import { FaTrophy  } from "react-icons/fa"
+import { FaTrophy } from "react-icons/fa";
 
 function Posiciones() {
   const [user, setUser] = useState(null); // Estado para el usuario
@@ -19,8 +19,42 @@ function Posiciones() {
   const [loading, setLoading] = useState(true);
   const cacheRanking = useRef({});
 
+  // Calcular la próxima actualización a las 6 AM hora argentina
+useEffect(() => {
+  const actualizarA6AM = () => {
+    // Crear un objeto Date con la hora de Argentina (UTC-3)
+    const ahoraArgentina = new Date().toLocaleString("en-US", {
+      timeZone: "America/Argentina/Buenos_Aires",
+    });
+
+    // Convertirlo a un objeto Date para manipularlo
+    const ahora = new Date(ahoraArgentina);
+
+    // Obtener la hora actual en hora de Argentina
+    const horaActual = ahora.getHours();
+    const minutosRestantes = (60 - ahora.getMinutes()) * 60 * 1000; // Minutos restantes a la hora siguiente
+    let proximaActualizacion = 6 - horaActual; // Calcular cuántas horas faltan para las 6 AM
+
+    // Si la hora actual es mayor o igual a 6 AM, la actualización debe ser para el próximo día
+    if (horaActual >= 6) {
+      proximaActualizacion += 24; // Agregamos 24 horas para la próxima vez
+    }
+
+    // Convertir la cantidad de horas a milisegundos
+    const milisegundosHasta6AM = proximaActualizacion * 60 * 60 * 1000 + minutosRestantes;
+
+    // Establecer un timeout para actualizar a las 6 AM (hora Argentina)
+    setTimeout(() => {
+      localStorage.removeItem("rankingCache"); // Limpiar el caché
+      setLoading(true); // Forzar una nueva consulta
+    }, milisegundosHasta6AM);
+  };
+
+  actualizarA6AM(); // Llamar a la función
+}, []);
+
+  // Verificación de autenticación
   useEffect(() => {
-    // Revisar el estado de autenticación del usuario
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
         setUser(currentUser);
@@ -32,6 +66,7 @@ function Posiciones() {
     return () => unsubscribe();
   }, []);
 
+  // Obtener rondas disponibles
   useEffect(() => {
     const fetchRondas = async () => {
       const snapshot = await getDocs(collection(db, "rondas"));
@@ -48,6 +83,7 @@ function Posiciones() {
     fetchRondas();
   }, []);
 
+  // Obtener el ranking (total o por ronda)
   useEffect(() => {
     const fetchRanking = async () => {
       setLoading(true);
@@ -98,7 +134,7 @@ function Posiciones() {
   if (loading) {
     return (
       <div>
-        <Navbar user={user} /> {/* Pasamos el estado de user al Navbar */}
+        <Navbar user={user} />
         <main className="flex justify-center items-center h-[70vh] bg-gray-900">
           <span className="loader"></span>
         </main>
@@ -109,20 +145,22 @@ function Posiciones() {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
-      <Navbar user={user} /> {/* Pasamos el estado de user al Navbar */}
+      <Navbar user={user} />
 
       <div className="max-w-[1200px] mx-auto px-4 py-6">
-        <h2 className="flex items-center justify-center gap-2 text-center font-semibold text-2xl md:text-4xl mb-4"> <FaTrophy className="w-6 h-6 text-yellow-400" />RANKING</h2>
+        <h2 className="flex items-center justify-center gap-2 text-center font-semibold text-2xl md:text-4xl mb-4">
+          <FaTrophy className="w-6 h-6 text-yellow-400" />
+          RANKING
+        </h2>
         <div className="flex flex-col md:flex-row md:justify-between md:items-center border-b border-gray-700 pb-4">
           <div className="flex flex-col md:flex-row justify-center gap-4">
             <button
               onClick={() => setModoVista("total")}
               className={`px-4 py-2 font-semibold rounded-md border transition-all duration-300 transform
-              ${
-                modoVista === "total"
+              ${modoVista === "total"
                   ? "cursor-pointer bg-yellow-600 text-gray-200 border-yellow-600 shadow-lg scale-105"
                   : "cursor-pointer bg-transparent text-gray-200 border border-gray-200 hover:text-yellow-400 hover:border-yellow-400 hover:shadow-md active:scale-95"
-              }`}
+                }`}
             >
               Total
             </button>
@@ -130,11 +168,10 @@ function Posiciones() {
             <button
               onClick={() => setModoVista("ronda")}
               className={`font-semibold px-4 py-2 rounded-md border transition-all duration-300 transform
-              ${
-                modoVista === "ronda"
+              ${modoVista === "ronda"
                   ? "cursor-pointer bg-yellow-600 text-gray-200 border-yellow-600 shadow-lg scale-105"
                   : "cursor-pointer bg-transparent text-gray-200 border border-gray-200 hover:text-yellow-400 hover:border-yellow-400 hover:shadow-md active:scale-95"
-              }`}
+                }`}
             >
               Por Ronda
             </button>
@@ -206,7 +243,7 @@ function Posiciones() {
 
               {hayPuntajes &&
                 teams.map((team) => {
-                 const puntos = team.puntos ?? 0;
+                  const puntos = team.puntos ?? 0;
                   return (
                     <div
                       key={team.id}

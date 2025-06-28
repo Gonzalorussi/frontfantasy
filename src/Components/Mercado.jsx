@@ -275,6 +275,7 @@ function Mercado() {
     );
   }
 
+  
   return (
     <div className="bg-gray-900 min-h-screen text-gray-200">
       <Navbar user={user} />
@@ -388,7 +389,7 @@ function Mercado() {
                   <span className="text-yellow-400 font-semibold text-sm">VER EN VIVO</span>
                   <div className="flex gap-3 text-lg">
                   <a
-                    href="https://www.youtube.com/LoLEsportsLatinoamérica"
+                    href="https://www.youtube.com/watch?v=LScDRglx6Qw"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-red-600"
@@ -396,7 +397,7 @@ function Mercado() {
                     <FaYoutube />
                   </a>
                   <a
-                    href="https://www.twitch.tv/lvpesports"
+                    href="https://www.twitch.tv/akofena_"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-purple-500"
