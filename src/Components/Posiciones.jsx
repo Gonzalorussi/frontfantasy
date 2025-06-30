@@ -95,8 +95,9 @@ useEffect(() => {
       }
 
       const cachedData = getCache(cacheKey);
-      if (cachedData) {
-        setTeams(cachedData);
+      console.log("📦 Cache recibido para", cacheKey, "→", cachedData, "¿Es array?", Array.isArray(cachedData));
+      if (cachedData && Array.isArray(cachedData.equipos)) {
+        setTeams(cachedData.equipos);
         setLoading(false);
         return;
       }
@@ -111,7 +112,7 @@ useEffect(() => {
         }
 
         const rankingEquipos = docSnap.data().equipos || [];
-        setCache(cacheKey, rankingEquipos, TTL_DIARIO_MINUTOS);
+        setCache(cacheKey, { equipos: rankingEquipos }, TTL_DIARIO_MINUTOS);
         setTeams(rankingEquipos);
       } catch (error) {
         console.error("Error al obtener el ranking:", error);
