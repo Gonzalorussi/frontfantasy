@@ -39,7 +39,7 @@ function Mercado() {
   const [rolActivo, setRolActivo] = useState(null);
   const [jugadores, setJugadores] = useState([]);
   const [alineacion, setAlineacion] = useState({});
-  const [presupuesto, setPresupuesto] = useState(50);
+  const [presupuesto, setPresupuesto] = useState(58);
   const [usuarioId, setUsuarioId] = useState(null);
   const [edicionHabilitada, setEdicionHabilitada] = useState(false);
   const [user, setUser] = useState(null); // Estado para el usuario
@@ -129,7 +129,7 @@ function Mercado() {
       const presupuestoUsado = Object.values(rosterData).reduce(
         (sum, j) => sum + (j?.valor || 0), 0
       );
-      setPresupuesto(50 - presupuestoUsado);
+      setPresupuesto(58 - presupuestoUsado);
     }
 
     obtenerRoster();
