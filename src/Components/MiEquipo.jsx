@@ -118,7 +118,7 @@ useEffect(() => {
       const equipoRef = doc(db, "equipos", uid);
 
       await setDoc(equipoRef, {
-        nombreequipo: teamName,
+        nombreequipo: teamName.trim(),
         escudoid: selectedShield,
         rellenoid: selectedFill,
         colorprimario: primaryColor,
@@ -136,6 +136,7 @@ useEffect(() => {
   };
 
   return (
+    
   <main className="bg-gray-900 min-h-screen">
     <Navbar />
     <h2 className="text-center text-gray-200 font-semibold text-2xl my-4">

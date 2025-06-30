@@ -28,8 +28,6 @@ export default function Login() {
           email: user.email,
           fechaCreacion: serverTimestamp(),
         });
-      } else {
-        console.log('Usuario ya existente:', user.displayName);
       }
 
       // Redirigimos al home

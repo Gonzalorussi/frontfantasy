@@ -16,7 +16,7 @@ const TopRosterCard = ({ jugador }) => {
       />
       <h3 className="text-lg font-semibold">{jugador.nombre}</h3>
       <p className="text-sm text-gray-400">{jugador.club}</p>
-      <p className="text-yellow-400 font-bold text-xl mt-2">{jugador.puntaje.toFixed(2)} pts</p>
+      <p className="text-yellow-400 font-bold text-xl mt-2">{jugador.puntajeronda.toFixed(2)} pts</p>
     </div>
   );
 };

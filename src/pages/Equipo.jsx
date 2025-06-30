@@ -8,6 +8,7 @@ import SeccionEquipo from '../Components/SeccionEquipo';
 import SeccionAlineacion from '../Components/SeccionAlineacion';
 import { useNavigate, Link } from 'react-router-dom';
 import useRondaActual from '../hooks/useRondaActual';
+import { getCachedOrFetch } from '../utils/cache';
 
 export default function Equipo() {
   const [user, setUser] = useState(null);
@@ -16,6 +17,7 @@ export default function Equipo() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { rondaActual, rondaAnterior, proximaRonda, loading: rondaLoading } = useRondaActual();
+   const TTL_DIARIO = 1000 * 60 * 60 * 24;
 
   useEffect(() => {
   const unsubscribe = onAuthStateChanged(auth, currentUser => {
@@ -36,33 +38,36 @@ export default function Equipo() {
 
   async function fetchData() {
     try {
-      const teamRef = doc(db, 'equipos', user.uid);
-      const teamSnap = await getDoc(teamRef);
-      if (teamSnap.exists()) setTeam(teamSnap.data());
+      const teamData = await getCachedOrFetch(
+          `equipo_${user.uid}`,
+          () => getDoc(doc(db, 'equipos', user.uid)).then(d => d.exists() ? d.data() : null),
+          TTL_DIARIO
+        );
 
-      const rosterRef = doc(db, 'rosters', user.uid);
-      const rosterSnap = await getDoc(rosterRef);
-      if (rosterSnap.exists()) {
-        const rosterData = rosterSnap.data();
+        if (teamData) setTeam(teamData);
 
-        if (rondaActual) {
-          const rosterRondaActual = rosterData[`ronda${rondaActual.numero}`];
-          setRoster(rosterRondaActual || null);
-          }else {
-          const rondasConfirmadas = Object.keys(rosterData)
-            .filter(key => key.startsWith('ronda'))
-            .map(key => parseInt(key.replace('ronda', ''), 10))
-            .sort((a, b) => b - a);
+       const rosterSnap = await getDoc(doc(db, 'rosters', user.uid));
+        if (rosterSnap.exists()) {
+          const rosterData = rosterSnap.data();
 
-          if (rondasConfirmadas.length > 0) {
-            setRoster(rosterData[`ronda${rondasConfirmadas[0]}`]|| {});
-          }else {
-            setRoster({});
+          if (rondaActual) {
+            const rosterRondaActual = rosterData[`ronda${rondaActual.numero}`];
+            setRoster(rosterRondaActual || null);
+          } else {
+            const rondasConfirmadas = Object.keys(rosterData)
+              .filter(key => key.startsWith('ronda'))
+              .map(key => parseInt(key.replace('ronda', ''), 10))
+              .sort((a, b) => b - a);
+
+            if (rondasConfirmadas.length > 0) {
+              setRoster(rosterData[`ronda${rondasConfirmadas[0]}`] || {});
+            } else {
+              setRoster({});
+            }
           }
+        } else {
+          setRoster({});
         }
-      }else {
-        setRoster({});
-      }
     }catch (err) {
       console.error(err);
       setRoster({});

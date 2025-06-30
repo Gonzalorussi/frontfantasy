@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import useRondaActual from "../hooks/useRondaActual";
 import { FaRegCalendarAlt, FaTrophy } from "react-icons/fa";
 import TopRosterCard from "../Components/TopRosterCard";
+import { getCachedOrFetch } from "../utils/cache";
 
 export default function Home() {
   const [user, setUser] = useState(null);
@@ -24,12 +25,8 @@ export default function Home() {
   const [hayPuntajes, setHayPuntajes] = useState(false); // Estado para controlar si hay puntajes
   const navigate = useNavigate();
 
-  const {
-    rondaActual,
-    rondaAnterior,
-    proximaRonda,
-    loading: loadingRondas,
-  } = useRondaActual();
+  const { rondaActual, rondaAnterior, proximaRonda, loading: loadingRondas} = useRondaActual();
+  const TTL_DIARIO = 1000 * 60 * 60 * 24;
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -44,49 +41,39 @@ export default function Home() {
   }, [navigate]);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || !rondaAnterior) return;
 
     const cargarDatos = async () => {
       setLoading(true);
       try {
-        // Ranking acumulado
-        const rankingAcumSnap = await getDoc(doc(db, "rankings", "rankingacumulado"));
-        const rankingAcum = rankingAcumSnap.exists() ? rankingAcumSnap.data().equipos || [] : [];
+        const rankingAcum = await getCachedOrFetch(
+          "rankingacumulado",
+          () => getDoc(doc(db, "rankings", "rankingacumulado")).then(d => d.data()),
+          TTL_DIARIO
+        );
+        const rankingRonda = await getCachedOrFetch(
+          `rankingronda_${rondaAnterior.numero}`,
+          () => getDoc(doc(db, "rankings", `rankingronda${rondaAnterior.numero}`)).then(d => d.data()),
+          TTL_DIARIO
+        );
 
-        // Top 3 acumulado
-        const top3Acum = rankingAcum.slice(0, 3);
+        const rankingAcumList = rankingAcum?.equipos || [];
+        const rankingRondaList = rankingRonda?.equipos || [];
+        
+        const equipoUsuarioAcum = rankingAcumList.find((e) => e.usuarioid === user.uid);
+        const equipoUsuarioRonda = rankingRondaList.find((e) => e.usuarioid === user.uid);
 
-        // Buscar el equipo del usuario
-        const equipoUsuarioAcum = rankingAcum.find((e) => e.usuarioid === user.uid);
-        if (!equipoUsuarioAcum) {
-          console.warn("No se encontró el equipo del usuario en el ranking acumulado");
-          return;
-        }
-
-        const posicion = equipoUsuarioAcum?.posicion ?? 0;
-        const puntosAcumulados = equipoUsuarioAcum?.puntos ?? 0;
-
-        // Ranking de la última ronda
-        const rankingRondaSnap = await getDoc(doc(db, "rankings", `rankingronda${rondaAnterior.numero}`));
-        const rankingRonda = rankingRondaSnap.exists() ? rankingRondaSnap.data().equipos || [] : [];
-
-        // Verificamos si hay puntajes mayores a cero en la ronda
-        const hayPuntajes = rankingRonda.some((team) => (team.puntos ?? 0) > 0);
-        setHayPuntajes(hayPuntajes);  // Actualizamos el estado hayPuntajes
-
-        // Top 3 ronda
-        const top3Ronda = rankingRonda.slice(0, 3);
-
-        // Buscar el puntaje de la última ronda
-        const equipoUsuarioRonda = rankingRonda.find((e) => e.usuarioid === user.uid);
-        const puntosUltimaRonda = equipoUsuarioRonda?.puntos ?? 0;
+        const top3Acum = rankingAcumList.slice(0, 3);
+        const top3Ronda = rankingRondaList.slice(0, 3);
+        const hayPuntajes = rankingRondaList.some((team) => (team.puntos ?? 0) > 0);
 
         // Sumar los puntos acumulados
-        setPosicion(posicion);
-        setPuntosAcumulados((prev) => prev + puntosAcumulados); // Sumar puntos acumulados
-        setPuntosUltimaRonda(puntosUltimaRonda);
+        setPosicion(equipoUsuarioAcum?.posicion ?? 0);
+        setPuntosAcumulados(equipoUsuarioAcum?.puntos ?? 0);
+        setPuntosUltimaRonda(equipoUsuarioRonda?.puntos ?? 0);
         setTop3Acumulado(top3Acum);
         setTop3Ronda(top3Ronda);
+        setHayPuntajes(hayPuntajes);
       } catch (err) {
         console.error("Error al cargar datos:", err);
       } finally {
@@ -94,35 +81,25 @@ export default function Home() {
       }
     };
 
-    cargarDatos(); // Llamamos a la función para cargar los datos
-  }, [user, rondaAnterior]); // Dependencias: usuario y rondaAnterior
+    cargarDatos();
+  }, [user, rondaAnterior]);
 
   useEffect(() => {
+    if (!rondaAnterior) return;
+
     const cargarTopRoster = async () => {
-      if (!rondaAnterior) return;
       try {
-        const docRef = doc(db, "rosterideal", `ronda${rondaAnterior.numero}`);
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          const roles = ["top", "jungle", "mid", "bottom", "support"];
-
-          // Solo incluimos los que existen
-          const topPorRol = roles
-            .map((rol) => {
-              const jugador = data[rol];
-              return jugador ? { ...jugador, rol } : null;
-            })
-            .filter((j) => j); // eliminamos los null
-
-          setTopRoster(topPorRol);
-        } else {
-          console.warn(`No se encontró rosterideal para ronda${rondaAnterior.numero}`);
-          setTopRoster([]); // limpia si no existe
-        }
-      } catch (error) {
-        console.error("Error al cargar Top Roster desde rosterideal:", error);
+        const data = await getCachedOrFetch(
+          `rosterideal_ronda${rondaAnterior.numero}`,
+          () => getDoc(doc(db, "rosterideal", `ronda${rondaAnterior.numero}`)).then(d => d.data()),
+          TTL_DIARIO
+        );
+        const roles = ["top", "jungle", "mid", "bottom", "support"];
+        const topPorRol = roles.map(rol => data?.[rol] ? { ...data[rol], rol } : null).filter(Boolean);
+        setTopRoster(topPorRol);
+      } catch (err) {
+        console.error("Error al cargar Top Roster desde cache o FS:", err);
+        setTopRoster([]);
       }
     };
 
@@ -132,24 +109,13 @@ export default function Home() {
   useEffect(() => {
     const cargarEstadisticasDesdeBackend = async () => {
       try {
-        const [promediosSnap, seleccionadosSnap] = await Promise.all([
-          getDoc(doc(db, "topplayers", "top5promedios")),
-          getDoc(doc(db, "topplayers", "top5seleccionados")),
+        const [promediosData, seleccionadosData] = await Promise.all([
+          getCachedOrFetch("top5promedios", () => getDoc(doc(db, "topplayers", "top5promedios")).then(d => d.data()), TTL_DIARIO),
+          getCachedOrFetch("top5seleccionados", () => getDoc(doc(db, "topplayers", "top5seleccionados")).then(d => d.data()), TTL_DIARIO),
         ]);
 
-        if (promediosSnap.exists()) {
-          const data = promediosSnap.data();
-          setTopPromedios(data.jugadores || []);
-        } else {
-          console.warn("No se encontró top5promedios");
-        }
-
-        if (seleccionadosSnap.exists()) {
-          const data = seleccionadosSnap.data();
-          setTopPickeados(data.jugadores || []);
-        } else {
-          console.warn("No se encontró top5seleccionados");
-        }
+        setTopPromedios(promediosData?.jugadores || []);
+        setTopPickeados(seleccionadosData?.jugadores || []);
       } catch (err) {
         console.error("Error al cargar estadísticas desde backend:", err);
       } finally {
@@ -201,7 +167,6 @@ export default function Home() {
                 <div className="bg-gray-700 w-full md:w-[340px] p-4 rounded-lg shadow-lg text-center">
                   <p className="text-lg font-medium text-gray-400">PUNTOS ÚLTIMA RONDA</p>
                   <p className="text-2xl font-bold text-yellow-400">{puntosUltimaRonda.toFixed(2)}</p>
-                                    {console.log(puntosUltimaRonda)} 
                 </div>
 
                 <div className="bg-gray-700 w-full md:w-[340px] p-4 rounded-lg shadow-lg text-center">
@@ -271,15 +236,15 @@ export default function Home() {
               </div>
 
               {/* Top Roster */}
-              {/* <div className="w-full rounded-xl bg-gray-700 p-6">
+               <div className="w-full rounded-xl bg-gray-700 p-6">
                 <h2 className="text-center text-2xl font-semibold mb-4">TOP ROSTER</h2>
                 <hr className="border-t border-gray-600 mb-4" />
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                   {topRoster.map((jugador) => (
-                    <TopRosterCard key={jugador.id} jugador={jugador} />
+                    <TopRosterCard key={`${jugador.rol}-${jugador.nombre}`} jugador={jugador} />
                   ))}
                 </div>
-              </div> */}
+              </div> 
 
               {/* TOP 5 PROMEDIOS */}
               <div className="w-full rounded-xl bg-gray-700 p-6 overflow-x-auto">

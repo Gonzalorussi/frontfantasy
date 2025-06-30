@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { onAuthStateChanged, getAuth } from "firebase/auth";
 import {
   doc,
-  setDoc,
   serverTimestamp,
   getFirestore,
   getDoc,
@@ -10,7 +9,6 @@ import {
   collection,
   writeBatch,
 } from "firebase/firestore";
-import silueta from "../assets/img/silueta.webp";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import SeccionAlineacion from "./SeccionAlineacion";
@@ -25,6 +23,7 @@ import useRondaActual from "../hooks/useRondaActual";
 import anillo from '../assets/img/anillo.png'
 import Swal from 'sweetalert2';
 import { FaYoutube, FaTwitch } from "react-icons/fa";
+import { getCache, setCache } from '../utils/cache';
 
 const roles = ["top", "jungle", "mid", "bottom", "support"];
 const iconosRoles = {
@@ -68,12 +67,20 @@ function Mercado() {
   useEffect(() => {
     async function obtenerJugadores() {
       try {
+        const cached = getCache('jugadoresPermitidos');
+        if (cached) {
+          setJugadores(cached);
+          setCargando(false);
+          return;
+        }
+
         const db = getFirestore();
         const jugadoresSnapshot = await getDoc(doc(db, "jugadorespermitidos", "agregado"));
 
         if (jugadoresSnapshot.exists()) {
           const data = jugadoresSnapshot.data();
           setJugadores(data.jugadores || []);
+          setCache('jugadoresPermitidos', data.jugadores || [], 60 * 60 * 1000); // cache 1 hora
         }
       }catch (error) {
         console.error("Error al obtener jugadores del MSI:", error);

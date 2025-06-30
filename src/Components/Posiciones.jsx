@@ -5,10 +5,12 @@ import Navbar from "./Navbar";
 import Footer from "./Footer";
 import VistaPreviaEscudo from "./VistaPreviaEscudo";
 import { Listbox, Transition } from "@headlessui/react";
-import { FaChevronDown } from "react-icons/fa";
+import { FaChevronDown, FaTrophy } from "react-icons/fa";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../firebase";
-import { FaTrophy } from "react-icons/fa";
+import { getCache, setCache } from "../utils/cache";
+
+const TTL_DIARIO_MINUTOS = 60 * 24;
 
 function Posiciones() {
   const [user, setUser] = useState(null); // Estado para el usuario
@@ -17,41 +19,37 @@ function Posiciones() {
   const [rondasDisponibles, setRondasDisponibles] = useState([]);
   const [rondaSeleccionada, setRondaSeleccionada] = useState("");
   const [loading, setLoading] = useState(true);
-  const cacheRanking = useRef({});
 
   // Calcular la próxima actualización a las 6 AM hora argentina
 useEffect(() => {
-  const actualizarA6AM = () => {
-    // Crear un objeto Date con la hora de Argentina (UTC-3)
-    const ahoraArgentina = new Date().toLocaleString("en-US", {
-      timeZone: "America/Argentina/Buenos_Aires",
-    });
+  const calcularMsHasta6AM = () => {
+      const ahoraArgentina = new Date().toLocaleString("en-US", {
+        timeZone: "America/Argentina/Buenos_Aires",
+      });
+      const ahora = new Date(ahoraArgentina);
+      const horaActual = ahora.getHours();
+      const minutosActual = ahora.getMinutes();
+      // ms restantes para siguiente 6AM
+      let horasHasta6AM = (6 - horaActual + 24) % 24;
+      // Si estamos justo en 6AM o después, irá para mañana
+      if (horaActual >= 6) horasHasta6AM = 24 - horaActual + 6;
+      const msHasta6AM = horasHasta6AM * 3600 * 1000 - minutosActual * 60 * 1000 - ahora.getSeconds() * 1000 - ahora.getMilliseconds();
 
-    // Convertirlo a un objeto Date para manipularlo
-    const ahora = new Date(ahoraArgentina);
+      return msHasta6AM;
+    };
 
-    // Obtener la hora actual en hora de Argentina
-    const horaActual = ahora.getHours();
-    const minutosRestantes = (60 - ahora.getMinutes()) * 60 * 1000; // Minutos restantes a la hora siguiente
-    let proximaActualizacion = 6 - horaActual; // Calcular cuántas horas faltan para las 6 AM
+    const timeoutId = setTimeout(() => {
+      // Borro sólo las keys que uso
+      localStorage.removeItem("rankingacumulado");
+      // borro todas las rondas cacheadas (podés ajustar el patrón)
+      Object.keys(localStorage).forEach((key) => {
+        if (key.startsWith("rankingronda")) localStorage.removeItem(key);
+      });
+      setLoading(true);
+    }, calcularMsHasta6AM());
 
-    // Si la hora actual es mayor o igual a 6 AM, la actualización debe ser para el próximo día
-    if (horaActual >= 6) {
-      proximaActualizacion += 24; // Agregamos 24 horas para la próxima vez
-    }
-
-    // Convertir la cantidad de horas a milisegundos
-    const milisegundosHasta6AM = proximaActualizacion * 60 * 60 * 1000 + minutosRestantes;
-
-    // Establecer un timeout para actualizar a las 6 AM (hora Argentina)
-    setTimeout(() => {
-      localStorage.removeItem("rankingCache"); // Limpiar el caché
-      setLoading(true); // Forzar una nueva consulta
-    }, milisegundosHasta6AM);
-  };
-
-  actualizarA6AM(); // Llamar a la función
-}, []);
+    return () => clearTimeout(timeoutId);
+  }, []);
 
   // Verificación de autenticación
   useEffect(() => {
@@ -88,33 +86,32 @@ useEffect(() => {
     const fetchRanking = async () => {
       setLoading(true);
       let docId = "rankingacumulado";
-      let cacheKey = "total";
+      let cacheKey = "rankingacumulado";
 
       if (modoVista === "ronda" && rondaSeleccionada) {
         const numero = rondaSeleccionada.replace("ronda", "");
         docId = `rankingronda${numero}`;
-        cacheKey = `ronda${numero}`;
+        cacheKey = docId;
       }
 
-      if (cacheRanking.current[cacheKey]) {
-        setTeams(cacheRanking.current[cacheKey]);
+      const cachedData = getCache(cacheKey);
+      if (cachedData) {
+        setTeams(cachedData);
         setLoading(false);
         return;
       }
 
       try {
         const docSnap = await getDoc(doc(db, "rankings", docId));
-
         if (!docSnap.exists()) {
           setTeams([]);
-          cacheRanking.current[cacheKey] = [];
+          setCache(cacheKey, [], TTL_DIARIO_MINUTOS);
           setLoading(false);
           return;
         }
 
         const rankingEquipos = docSnap.data().equipos || [];
-
-        cacheRanking.current[cacheKey] = rankingEquipos;
+        setCache(cacheKey, rankingEquipos, TTL_DIARIO_MINUTOS);
         setTeams(rankingEquipos);
       } catch (error) {
         console.error("Error al obtener el ranking:", error);
@@ -123,6 +120,7 @@ useEffect(() => {
 
       setLoading(false);
     };
+
     fetchRanking();
   }, [modoVista, rondaSeleccionada]);
 

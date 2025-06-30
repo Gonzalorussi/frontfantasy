@@ -2,8 +2,11 @@ import { useState, useEffect } from 'react';
 import { db } from '../firebase';
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import { DateTime } from 'luxon';
+import { getCache, setCache } from '../utils/cache';
 
 const ZONA_HORARIA = 'America/Argentina/Buenos_Aires';
+const CACHE_KEY = 'rondas';
+const TTL = 60 * 60 * 1000; // 
 
 const useRondaActual = () => {
   const [rondaActual, setRondaActual] = useState(null);
@@ -15,8 +18,47 @@ const useRondaActual = () => {
   useEffect(() => {
     const ahora = DateTime.now().setZone(ZONA_HORARIA);
 
+    const procesarRondas = (rondas) => {
+      let actual = null;
+      for (let i = 0; i < rondas.length; i++) {
+        if (ahora >= rondas[i].Fechainicio && ahora <= rondas[i].Fechafin) {
+          actual = rondas[i];
+          break;
+        }
+      }
+
+      if (actual) {
+        const idx = rondas.findIndex(r => r.id === actual.id);
+        setRondaActual(actual);
+        setRondaAnterior(idx > 0 ? rondas[idx - 1] : null);
+        setProximaRonda(idx + 1 < rondas.length ? rondas[idx + 1] : null);
+      } else {
+        const futuras = rondas.filter(r => ahora < r.Fechainicio);
+        const pasadas = rondas.filter(r => ahora >= r.Fechafin);
+
+        const proxima = futuras.length > 0 ? futuras[0] : null;
+        const anterior = pasadas.length > 0 ? pasadas[pasadas.length - 1] : null;
+
+        setRondaActual(null);
+        setRondaAnterior(anterior);
+        setProximaRonda(proxima);
+      }
+    };
+
     const obtenerRondas = async () => {
       try {
+        const cached = getCache(CACHE_KEY);
+        if (cached) {
+          const rondasConvertidas = cached.map(r => ({
+    ...r,
+    Fechainicio: DateTime.fromISO(r.Fechainicio).setZone(ZONA_HORARIA),
+    Fechafin: DateTime.fromISO(r.Fechafin).setZone(ZONA_HORARIA),
+  }));
+  procesarRondas(rondasConvertidas);
+  setLoading(false);
+  return;
+        }
+
         const rondasQuery = query(collection(db, 'rondas'), orderBy('fechainicio', 'asc'));
         const querySnapshot = await getDocs(rondasQuery);
         
@@ -30,44 +72,9 @@ const useRondaActual = () => {
           };
         });
 
-        if (rondas.length === 0) {
-          setLoading(false);
-          return;
-        }
-      
-
-        let encontrada = false;
-        for (let i = 0; i < rondas.length; i++) {
-          const ronda = rondas[i];
-          if (ahora >= ronda.Fechainicio && ahora < ronda.Fechafin) {
-            setRondaActual(ronda);
-            setRondaAnterior(i > 0 ? rondas[i - 1] : null);
-            setProximaRonda(i + 1 < rondas.length ? rondas[i + 1] : null);
-            encontrada = true;
-            break;
-          }
-        }
-
-        if (!encontrada) {
-          if (ahora < rondas[0].Fechainicio) {
-            setRondaActual(null);
-            setRondaAnterior(null);
-            setProximaRonda(rondas[0]);
-            } else {
-              const rondasFinalizadas = rondas.filter(r => ahora >= r.Fechafin);
-              const ultimaFinalizada = rondasFinalizadas.length > 0 
-              ? rondasFinalizadas[rondasFinalizadas.length - 1] 
-              : null;
-
-              const rondasFuturas = rondas.filter(r => ahora < r.Fechainicio);
-              const proxima = rondasFuturas.length > 0 ? rondasFuturas[0] : null;
-
-              setRondaActual(null);
-              setRondaAnterior(ultimaFinalizada);
-              setProximaRonda(proxima);
-            }
-          }
-        } catch (err) {
+        setCache(CACHE_KEY, rondas, TTL);
+        procesarRondas(rondas);
+      } catch (err) {
           console.error("Error al obtener las rondas:", err);
           setError(err);
         } finally {
