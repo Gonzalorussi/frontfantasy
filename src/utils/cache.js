@@ -4,12 +4,12 @@
  * @param {any} data - Datos a guardar
  * @param {number} ttlMinutes - Tiempo de vida en minutos
  */
-export function setCache(key, data, ttlMinutes) {
+export function setCache(key, data, ttlMs) {
   const now = Date.now();
   const cacheEntry = {
     data,
     timestamp: now,
-    ttl: ttlMinutes * 60 * 1000, // convert to ms
+    ttl: ttlMs,
   };
   localStorage.setItem(key, JSON.stringify(cacheEntry));
 }
@@ -26,6 +26,7 @@ export function getCache(key) {
   try {
     const { data, timestamp, ttl } = JSON.parse(raw);
     const now = Date.now();
+    console.log(`[Cache] getCache key=${key} now=${now} timestamp=${timestamp} ttl=${ttl} diff=${now - timestamp}`);
     if (now - timestamp > ttl) {
       localStorage.removeItem(key);
       return null;
@@ -58,6 +59,36 @@ export async function getCachedOrFetch(key, fetchFunction, ttlMs) {
   if (data !== null) return data;
 
   const result = await fetchFunction();
-  setCache(key, result, ttlMs / 60000); // convert ms to minutes
+  setCache(key, result, ttlMs);
   return result;
 }
+
+/**
+ * Limpia del localStorage todas las entradas relacionadas al fantasy si ya cambió el día
+ */
+export function limpiarCacheDiaria() {
+  const ahora = new Date().toLocaleString("en-US", {
+    timeZone: "America/Argentina/Buenos_Aires",
+  });
+  const fechaHoy = new Date(ahora).toDateString();
+
+  const ultimaFecha = localStorage.getItem("ultimaLimpieza");
+
+  if (ultimaFecha !== fechaHoy) {
+    console.log("🧹 Limpieza de cache: nuevo día →", fechaHoy);
+
+    Object.keys(localStorage).forEach((key) => {
+      if (
+        key.startsWith("ranking") ||
+        key.startsWith("top") ||
+        key === "jugadoresPermitidos"
+      ) {
+        console.log("🗑️ Borrando clave cacheada:", key);
+        localStorage.removeItem(key);
+      }
+    });
+
+    localStorage.setItem("ultimaLimpieza", fechaHoy);
+  }
+}
+

@@ -6,7 +6,19 @@ import { getCache, setCache } from '../utils/cache';
 
 const ZONA_HORARIA = 'America/Argentina/Buenos_Aires';
 const CACHE_KEY = 'rondas';
-const TTL = 60 * 60 * 1000; // 
+function calcularTTLHasta7AM() {
+  const ahora = DateTime.now().setZone('America/Argentina/Buenos_Aires');
+  let proximo7AM = ahora.set({ hour: 7, minute: 2, second: 0, millisecond: 0 });
+  
+  // Si ya pasó la 7AM hoy, el próximo 7AM es mañana
+  if (ahora >= proximo7AM) {
+    proximo7AM = proximo7AM.plus({ days: 1 });
+  }
+  
+  const diff = proximo7AM.diff(ahora).as('milliseconds');
+  console.log(`[TTL] Tiempo hasta 7:02 AM: ${diff} ms`);
+  return diff;
+}
 
 const useRondaActual = () => {
   const [rondaActual, setRondaActual] = useState(null);
@@ -49,6 +61,7 @@ const useRondaActual = () => {
       try {
         const cached = getCache(CACHE_KEY);
         if (cached) {
+          console.log("[Cache] Datos cargados desde cache");
           const rondasConvertidas = cached.map(r => ({
     ...r,
     Fechainicio: DateTime.fromISO(r.Fechainicio).setZone(ZONA_HORARIA),
@@ -57,7 +70,8 @@ const useRondaActual = () => {
   procesarRondas(rondasConvertidas);
   setLoading(false);
   return;
-        }
+  
+        }console.log("[Cache] Cache no existe o expiró, fetch a Firestore");
 
         const rondasQuery = query(collection(db, 'rondas'), orderBy('fechainicio', 'asc'));
         const querySnapshot = await getDocs(rondasQuery);
@@ -71,8 +85,11 @@ const useRondaActual = () => {
             Fechafin: DateTime.fromJSDate(data.fechafin.toDate()).setZone(ZONA_HORARIA)
           };
         });
+        const TTL_HASTA_7AM = calcularTTLHasta7AM();
+        console.log("[Cache] TTL calculado para rondas (ms):", TTL_HASTA_7AM);
 
-        setCache(CACHE_KEY, rondas, TTL);
+        setCache(CACHE_KEY, rondas, TTL_HASTA_7AM);
+        console.log("[Cache] Guardando rondas con TTL (ms):", TTL_HASTA_7AM);
         procesarRondas(rondas);
       } catch (err) {
           console.error("Error al obtener las rondas:", err);

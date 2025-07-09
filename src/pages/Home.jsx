@@ -85,6 +85,27 @@ export default function Home() {
   }, [user, rondaAnterior]);
 
   useEffect(() => {
+  if (!rondaAnterior) return;
+
+  const claveRonda = `ronda${rondaAnterior.numero}`;
+  const ultimaRondaCacheada = localStorage.getItem("ultimaRondaCacheada");
+
+  if (ultimaRondaCacheada !== claveRonda) {
+    console.log("🧹 Limpiando cache por cambio de ronda");
+
+    // Borrar claves relacionadas a datos que se actualizan al cerrar ronda
+    localStorage.removeItem(`rankingronda_${rondaAnterior.numero}`);
+    localStorage.removeItem("rankingacumulado");
+    localStorage.removeItem(`rosterideal_ronda${rondaAnterior.numero}`);
+    localStorage.removeItem("top5promedios");
+    localStorage.removeItem("top5seleccionados");
+
+    localStorage.setItem("ultimaRondaCacheada", claveRonda);
+  }
+}, [rondaAnterior]);
+
+
+  useEffect(() => {
     if (!rondaAnterior) return;
 
     const cargarTopRoster = async () => {
